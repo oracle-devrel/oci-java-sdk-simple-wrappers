@@ -1,0 +1,102 @@
+<!-- Copyright (c) 2023 Oracle and/or its affiliates.
+
+The Universal Permissive License (UPL), Version 1.0
+
+Subject to the condition set forth below, permission is hereby granted to any
+person obtaining a copy of this software, associated documentation and/or data
+(collectively the "Software"), free of charge and under any and all copyright
+rights in the Software, and any and all patent rights owned or freely
+licensable by each licensor hereunder covering either (i) the unmodified
+Software as contributed to or provided by such licensor, or (ii) the Larger
+Works (as defined below), to deal in both
+
+(a) the Software, and
+(b) any piece of software and/or hardware listed in the lrgrwrks.txt file if
+one is included with the Software (each a "Larger Work" to which the Software
+is contributed by such licensors),
+
+without restriction, including without limitation the rights to copy, create
+derivative works of, display, perform, and distribute the Software and make,
+use, sell, offer for sale, import, export, have made, and have sold the
+Software and the Larger Work(s), and to sublicense the foregoing rights on
+either these or other terms.
+
+This license is subject to the following condition:
+The above copyright notice and either this complete permission notice or at
+a minimum a reference to the UPL must be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.oracle.timg.demo</groupId>
+	<artifactId>oci-java-sdk-simple-wrappers</artifactId>
+	<name>ocicore</name>
+	<version>1.0.0</version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.ocisdk>3.17.0</version.ocisdk>
+		<version.lombok>1.18.28</version.lombok>
+		<version.slf4j>2.0.7</version.slf4j>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.oracle.oci.sdk</groupId>
+				<artifactId>oci-java-sdk-bom</artifactId>
+				<version>${version.ocisdk}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-core</artifactId>
+		</dependency>
+		<!-- A http client isn't included as standard, so you need to specify the one to use -->
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-common-httpclient-jersey3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-streaming</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-objectstorage</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-identity</artifactId>
+		</dependency>
+		<!-- Lombok does the auto method creation, used for the log stuff -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${version.lombok}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- SLF4J is a logging facade that let's us change the actual logger used 
+			under the covers without changing our code, slf4j-jdk14 is for output to 
+			the standard Java logging utilities. By making the dependency declaration 
+			below Maven will bring in the core SLF4J jar files, and also the SLJ4J to 
+			java.util.logging binding -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${version.slf4j}</version>
+		</dependency>
+	</dependencies>
+</project>
