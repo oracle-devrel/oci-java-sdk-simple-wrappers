@@ -39,7 +39,7 @@ SOFTWARE. -->
 	<groupId>com.oracle.timg.demo</groupId>
 	<artifactId>oci-java-sdk-simple-wrappers</artifactId>
 	<name>ocicore</name>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<version.ocisdk>3.17.0</version.ocisdk>
