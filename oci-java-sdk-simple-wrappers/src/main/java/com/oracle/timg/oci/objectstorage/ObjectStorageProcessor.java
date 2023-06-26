@@ -40,11 +40,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.oracle.bmc.identity.model.Compartment;
 import com.oracle.bmc.model.BmcException;
@@ -89,6 +91,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ObjectStorageProcessor {
 
+	private static final int DELETED_CODE = 204;
 	private UploadManager uploadManager;
 	private DownloadManager downloadManager;
 	private final AuthenticationProcessor authProcessor;
@@ -567,7 +570,8 @@ public class ObjectStorageProcessor {
 			DeleteObjectResponse response = objectstorageClient.deleteObject(request);
 			log.debug("Delete object " + fullObjectName + " from bucket " + bucketName + " has reponse code "
 					+ response.get__httpStatusCode__());
-			return response.get__httpStatusCode__() == HttpURLConnection.HTTP_OK;
+			return (response.get__httpStatusCode__() == DELETED_CODE)
+					|| (response.get__httpStatusCode__() == HttpURLConnection.HTTP_OK);
 		} catch (BmcException e) {
 			log.warn("Can't delete object, msg is " + e.getLocalizedMessage());
 			return false;
@@ -642,15 +646,20 @@ public class ObjectStorageProcessor {
 			@NonNull File localFile) throws IOException {
 		String fullObjectName = objectPrefix == null ? objectName
 				: objectPrefix + pathSeparatorInObjectStorage + objectName;
-		// share the upload manager and allow lazy instantiation
-		if (uploadManager == null) {
-			UploadConfiguration uploadConfiguration = UploadConfiguration.builder().allowMultipartUploads(true)
-					.allowParallelUploads(true).build();
-			uploadManager = new UploadManager(objectstorageClient, uploadConfiguration);
+		// share the upload manager and allow lazy instantiation, synchrnonize to allow
+		// for parallel operation(s)
+		synchronized (this) {
+			if (uploadManager == null) {
+				log.debug("Initialiing upload manager");
+				UploadConfiguration uploadConfiguration = UploadConfiguration.builder().allowMultipartUploads(true)
+						.allowParallelUploads(true).build();
+				uploadManager = new UploadManager(objectstorageClient, uploadConfiguration);
+			}
 		}
 		PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucketName(bucketName).namespaceName(namespace)
 				.objectName(fullObjectName).build();
 		UploadRequest uploadRequest = UploadRequest.builder(localFile).allowOverwrite(true).build(putObjectRequest);
+		log.debug("Uploading " + localFile.getPath() + " to bucket " + bucketName + " object names " + fullObjectName);
 		UploadResponse uploadResponse = uploadManager.upload(uploadRequest);
 		String uploadedMD5 = uploadResponse.getContentMd5();
 		return uploadedMD5 == null ? uploadResponse.getMultipartMd5() : uploadedMD5;
@@ -687,9 +696,56 @@ public class ObjectStorageProcessor {
 		File[] dirEntries = localStartingPoint.listFiles();
 		String res = "";
 		for (File dirEntry : dirEntries) {
+			log.debug("Uploading from directory " + localStartingPoint + " object " + dirEntry.getName());
 			res += uploadObject(bucketName, objectPrefix, dirEntry) + "\n";
 		}
 		return res;
+	}
+
+	/**
+	 * Uploads all of the object or directories containing objects, uploads
+	 * sequentially
+	 * 
+	 * @param bucketName          - must not be null
+	 * @param objectPrefix        - if provided will be applied to all uploaded
+	 *                            objects
+	 * @param localStartingPoints - must not be null and must be a file or directory
+	 * @param parallelUploads     - if true then each of the localStarting points is
+	 *                            uploaded in parallel (or at least as parallel as
+	 *                            the object storage system supports
+	 * @return the relative file names and their MD5 checksums
+	 * @throws IOException
+	 */
+	public String uploadObjects(@NonNull String bucketName, String objectPrefix,
+			@NonNull Collection<File> localStartingPoints) throws IOException {
+		return uploadObjects(bucketName, objectPrefix, localStartingPoints, false);
+	}
+
+	/**
+	 * Uploads all of the object or directories containing objects, uploads
+	 * sequentially or in parallel depending on the parallelUploads
+	 * 
+	 * @param bucketName          - must not be null
+	 * @param objectPrefix        - if provided will be applied to all uploaded
+	 *                            objects
+	 * @param localStartingPoints - must not be null and must be a file or directory
+	 * @param parallelUploads     - if true then each of the localStarting points is
+	 *                            uploaded in parallel (or at least as parallel as
+	 *                            the object storage system supports
+	 * @return the relative file names and their MD5 checksums
+	 * @throws IOException
+	 */
+	public String uploadObjects(@NonNull String bucketName, String objectPrefix,
+			@NonNull Collection<File> localStartingPoints, boolean parallelUploads) throws IOException {
+		return (parallelUploads ? localStartingPoints.parallelStream() : localStartingPoints.stream())
+				.map(localStartingPoint -> {
+					try {
+						return uploadObject(bucketName, objectPrefix, localStartingPoint);
+					} catch (IOException e) {
+						return "Problem  uploading to bucket " + bucketName + " wth prefix " + objectPrefix
+								+ "  from local start " + localStartingPoint.getPath();
+					}
+				}).collect(Collectors.joining("\n"));
 	}
 
 	/**
@@ -749,9 +805,11 @@ public class ObjectStorageProcessor {
 			@NonNull File localFile) throws IOException {
 		String fullObjectName = objectPrefix == null ? objectName : objectPrefix + objectName;
 		// share the download manager and allow lazy instantiation
-		if (downloadManager == null) {
-			DownloadConfiguration downloadConfiguration = DownloadConfiguration.builder().build();
-			downloadManager = new DownloadManager(objectstorageClient, downloadConfiguration);
+		synchronized (this) {
+			if (downloadManager == null) {
+				DownloadConfiguration downloadConfiguration = DownloadConfiguration.builder().build();
+				downloadManager = new DownloadManager(objectstorageClient, downloadConfiguration);
+			}
 		}
 		GetObjectRequest request = GetObjectRequest.builder().bucketName(bucketName).namespaceName(namespace)
 				.objectName(fullObjectName).build();
@@ -767,9 +825,137 @@ public class ObjectStorageProcessor {
 	}
 
 	/**
-	 * Downloads the object to the driectory represented by localStartingPoint , if
+	 * Downloads each of the object names to the directory represented by
+	 * localStartingPoint, if the object name includes path elements e.g.
+	 * /user/tim/file1.txt then if needed the /user/tim directory will be created
+	 * under the local starting point.
+	 * 
+	 * The downloads will happen sequentially
+	 * 
+	 * If the the object names represent an object then only object read permission
+	 * is needed, however if the object represents a "folder" (In OCI object storage
+	 * terminology) then inspect permission is needed on the bucket as well to
+	 * identify the objects it contains
+	 * 
+	 * @param bucketName         - must not be null
+	 * @param objectPrefix       - if non null will be applied to the object name
+	 *                           before starting the download
+	 * @param objectNames        - must not be null
+	 * @param localStartingPoint - must not be null, must be a directory
+	 * @return number of objects downloaded
+	 * @throws IOException
+	 */
+	public long downloadFilesCreatePath(@NonNull String bucketName, String objectPrefix, @NonNull String objectNames[],
+			@NonNull File localStartingPoint) throws IOException {
+		return downloadFilesCreatePath(bucketName, objectPrefix, objectNames, localStartingPoint, false);
+	}
+
+	/**
+	 * Downloads each of the object names to the directory represented by
+	 * localStartingPoint, if the object name includes path elements e.g.
+	 * /user/tim/file1.txt then if needed the /user/tim directory will be created
+	 * under the local starting point.
+	 * 
+	 * The downloads will happen in parallel at the level of the objectNames if
+	 * parallelDownloads is set to true. This means that if there were say two
+	 * object names both would be downloaded in parallel (upto to the limits set by
+	 * the object storage) however if there were multiple objects "under" a
+	 * specified object name than those would happen sequentially
+	 * 
+	 * If the the object names represent an object then only object read permision
+	 * is needed, however if the object represents a "folder" (In OCI object storage
+	 * terminology) then inspect permision is needed on the bucket as well to
+	 * identify the objects it contains
+	 * 
+	 * @param bucketName         - must not be null
+	 * @param objectPrefix       - if non null will be applied to the object name
+	 *                           before starting the download
+	 * @param objectNames        - must not be null
+	 * @param localStartingPoint - must not be null, must be a directory
+	 * @parallelDownloads - if true then allow parallel downloads
+	 * @return number of objects downloaded
+	 * @throws IOException
+	 */
+	public long downloadFilesCreatePath(@NonNull String bucketName, String objectPrefix, @NonNull String objectNames[],
+			@NonNull File localStartingPoint, boolean parallelDownloads) throws IOException {
+		return downloadFilesCreatePath(bucketName, objectPrefix, Arrays.asList(objectNames), localStartingPoint,
+				parallelDownloads);
+
+	}
+
+	/**
+	 * Downloads each of the object names to the directory represented by
+	 * localStartingPoint, if the object name includes path elements e.g.
+	 * /user/tim/file1.txt then if needed the /user/tim directory will be created
+	 * under the local starting point.
+	 * 
+	 * The downloads will happen sequentially
+	 * 
+	 * If the the object names represent an object then only object read permision
+	 * is needed, however if the object represents a "folder" (In OCI object storage
+	 * terminology) then inspect permision is needed on the bucket as well to
+	 * identify the objects it contains
+	 * 
+	 * @param bucketName         - must not be null
+	 * @param objectPrefix       - if non null will be applied to the object name
+	 *                           before starting the download
+	 * @param objectNames        - must not be null
+	 * @param localStartingPoint - must not be null, must be a directory
+	 * @return number of objects downloaded
+	 * @throws IOException
+	 */
+	public long downloadFilesCreatePath(@NonNull String bucketName, String objectPrefix,
+			@NonNull Collection<String> objectNames, @NonNull File localStartingPoint) throws IOException {
+		return downloadFilesCreatePath(bucketName, objectPrefix, objectNames, localStartingPoint, false);
+	}
+
+	/**
+	 * Downloads each of the object names to the directory represented by
+	 * localStartingPoint, if the object name includes path elements e.g.
+	 * /user/tim/file1.txt then if needed the /user/tim directory will be created
+	 * under the local starting point.
+	 * 
+	 * The downloads will happen in parallel at the level of the objectNames if
+	 * parallelDownloads is set to true. This means that if there were say two
+	 * object names both would be downloaded in parallel (upto to the limits set by
+	 * the object storage) however if there were multiple objects "under" a
+	 * specified object name than those would happen sequentially
+	 * 
+	 * If the the object names represent an object then only object read permision
+	 * is needed, however if the object represents a "folder" (In OCI object storage
+	 * terminology) then inspect permision is needed on the bucket as well to
+	 * identify the objects it contains
+	 * 
+	 * @param bucketName         - must not be null
+	 * @param objectPrefix       - if non null will be applied to the object name
+	 *                           before starting the download
+	 * @param objectNames        - must not be null
+	 * @param localStartingPoint - must not be null, must be a directory
+	 * @parallelDownloads - if true then allow parallel downloads
+	 * @return number of objects downloaded
+	 * @throws IOException
+	 */
+	public long downloadFilesCreatePath(@NonNull String bucketName, String objectPrefix,
+			@NonNull Collection<String> objectNames, @NonNull File localStartingPoint, boolean parallelDownloads)
+			throws IOException {
+		return (parallelDownloads ? objectNames.parallelStream() : objectNames.stream()).map(objectName -> {
+			try {
+				return downloadFileCreatePath(bucketName, objectPrefix, objectName, localStartingPoint);
+			} catch (IOException e) {
+				return -1;
+			}
+		}).filter(bytesDownloaded -> bytesDownloaded >= 0).count();
+	}
+
+	/**
+	 * Downloads the object to the directory represented by localStartingPoint , if
 	 * the object name includes path elements e.g. /user/tim/file1.txt then if
 	 * needed the /user/tim directory will be created under the local starting point
+	 * 
+	 * If the the object names represent an object then only object read permision
+	 * is needed, however if the object represents a "folder" (In OCI object storage
+	 * terminology) then inspect permision is needed on the bucket as well to
+	 * identify the objects it contains
 	 * 
 	 * @param bucketName         - must not be null
 	 * @param objectPrefix       - if non null will be applied to the object name
@@ -781,7 +967,7 @@ public class ObjectStorageProcessor {
 	 */
 	public int downloadFileCreatePath(@NonNull String bucketName, String objectPrefix, @NonNull String objectName,
 			@NonNull File localStartingPoint) throws IOException {
-		log.info("Downloading into bucket " + bucketName + " object with prefix " + objectPrefix + " and name "
+		log.debug("Downloading into bucket " + bucketName + " object with prefix " + objectPrefix + " and name "
 				+ objectName + " with local starting point of " + localStartingPoint.getPath());
 		if (!localStartingPoint.isDirectory()) {
 			throw new IOException(
@@ -790,7 +976,7 @@ public class ObjectStorageProcessor {
 		String relativeDirectoryPath = objectName;
 		// if it starts with a path delimiter remove it (allow for multiple)
 		while (relativeDirectoryPath.startsWith(pathSeparatorInObjectStorage)) {
-			log.info("removed " + pathSeparatorInObjectStorage + " from start of objectName path");
+			log.debug("removed " + pathSeparatorInObjectStorage + " from start of objectName path");
 			relativeDirectoryPath = relativeDirectoryPath.substring(pathSeparatorInObjectStorage.length());
 		}
 		// get the path element of the object, we need to determine if we will be
@@ -803,21 +989,20 @@ public class ObjectStorageProcessor {
 			relativeDirectoryPath = objectName.substring(0, lastPathSeparator);
 			// make sure any paths are in the local FS format
 			relativeDirectoryPath = relativeDirectoryPath.replace(pathSeparatorInObjectStorage, File.separator);
-			log.info("The directory path element to be added is " + relativeDirectoryPath);
+			log.debug("The directory path element to be added is " + relativeDirectoryPath);
 			File endDir = new File(localStartingPoint.getPath() + File.separator + relativeDirectoryPath);
-			log.info("crreating local directory including local start og " + localStartingPoint.getPath()
+			log.debug("creating local directory including local start of " + localStartingPoint.getPath()
 					+ " and relative dir of " + relativeDirectoryPath + " is " + endDir.getPath());
 			endDir.mkdirs();
 			String finalObjectName = objectName.substring(lastPathSeparator);
 			downloadTarget = new File(endDir.getPath() + File.separator + finalObjectName);
-			log.info("tried to create the directory tree for download target of " + downloadTarget.getPath());
+			log.debug("tried to create the directory tree for download target of " + downloadTarget.getPath());
 		} else {
 			downloadTarget = new File(localStartingPoint.getPath() + File.separator + objectName);
-			log.info(downloadTarget.getPath() + " is a file in the prefix with no path to no need to create the tree");
+			log.debug(downloadTarget.getPath() + " is a file in the prefix with no path to no need to create the tree");
 		}
-		log.info("Downloading to " + bucketName + " from prefix " + objectPrefix + " with name " + objectName
+		log.debug("Downloading to " + bucketName + " from prefix " + objectPrefix + " with name " + objectName
 				+ " to local file " + downloadTarget.getPath());
-		;
 		return downloadFile(bucketName, objectPrefix, objectName, downloadTarget);
 	}
 
@@ -850,8 +1035,8 @@ public class ObjectStorageProcessor {
 	 */
 
 	public String downloadObject(@NonNull String bucketName, String objectPrefix, @NonNull File localStartingPoint) {
-		log.info("Downloading from bucket " + bucketName + " under prefix " + objectPrefix + " to local starting point "
-				+ localStartingPoint.getPath());
+		log.debug("Downloading from bucket " + bucketName + " under prefix " + objectPrefix
+				+ " to local starting point " + localStartingPoint.getPath());
 		// get the object names
 		Set<String> objectNames = listObjectNamesInBucket(bucketName, objectPrefix);
 		String result = "";
@@ -864,5 +1049,16 @@ public class ObjectStorageProcessor {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Tests a given objectName to ensure that it doesn't contain and path / folder
+	 * structures as defined by object storage
+	 * 
+	 * @param objectName
+	 * @return
+	 */
+	public boolean isObjectNameOnly(@NonNull String objectName) {
+		return objectName.lastIndexOf(DEFAULT_PATH_SEPARATOR_IN_OBJECT_STORAGE) < 0;
 	}
 }
