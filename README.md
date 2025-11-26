@@ -16,14 +16,14 @@ To get started you will also user API signing keys and credentials for the user 
 
 To use the code to manage objects in OCI you will need to :
 
-Create an AuthenticationProcessor (com.oracle.timg.oci.authentication) - this does the security work for you, speciy the OCI configuration file section to use for the connection and optionall the OCI region to work on (by defual it will sue the region in the config file)
+Create an AuthenticationProcessor (com.oracle.timg.oci.authentication) - this does the security work for you, speciy the OCI configuration file section to use for the connection and optionally the OCI region to work on (by default it will use the region in the config file)
 
 From there use the other processor classes as needed, these will all need the AuthenticationProcessor you created as part of their consructor.
 
 
 
 ### Prerequisites
-You will need a development environment with Java (17 is the cersion Im using, earlier versions may not be supported by the OCI Java SDK).
+You will need a development environment with Java (21 is the version I'm currently using, earlier versions may not be supported by the OCI Java SDK).
 
 I also use Maven to build this and to manage the dependencies, but if you have other mechanisms feel free.
 
@@ -40,7 +40,7 @@ This is a **very** limited set of OCI services that are being wrapped here, over
 This project is open source.  Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
 
 ## License
-Copyright (c) 2024 Oracle and/or its affiliates.
+Copyright (c) 2025 Oracle and/or its affiliates.
 
 Licensed under the Universal Permissive License (UPL), Version 1.0.
 
