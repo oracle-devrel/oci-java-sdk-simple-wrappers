@@ -34,18 +34,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.oracle.timg.demo</groupId>
 	<artifactId>oci-java-sdk-simple-wrappers</artifactId>
 	<name>ocicore</name>
 	<version>1.0.1</version>
 	<properties>
+        <packaging>jar</packaging>
+        <jdk.version>21</jdk.version>
+        <release.version>21</release.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<version.ocisdk>3.17.0</version.ocisdk>
-		<version.lombok>1.18.28</version.lombok>
+		<version.ocisdk>3.77.0</version.ocisdk>
+		<version.lombok>1.18.42</version.lombok>
 		<version.slf4j>2.0.7</version.slf4j>
-		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 	</properties>
 	<dependencyManagement>
@@ -64,7 +69,8 @@ SOFTWARE. -->
 			<groupId>com.oracle.oci.sdk</groupId>
 			<artifactId>oci-java-sdk-core</artifactId>
 		</dependency>
-		<!-- A http client isn't included as standard, so you need to specify the one to use -->
+		<!-- A http client isn't included as standard, so you need to specify
+		the one to use -->
 		<dependency>
 			<groupId>com.oracle.oci.sdk</groupId>
 			<artifactId>oci-java-sdk-common-httpclient-jersey3</artifactId>
@@ -81,6 +87,14 @@ SOFTWARE. -->
 			<groupId>com.oracle.oci.sdk</groupId>
 			<artifactId>oci-java-sdk-identity</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-vault</artifactId>
+		</dependency>
+		<dependency>
+          <groupId>com.oracle.oci.sdk</groupId>
+          <artifactId>oci-java-sdk-iot</artifactId>
+       </dependency>
 		<!-- Lombok does the auto method creation, used for the log stuff -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -88,7 +102,8 @@ SOFTWARE. -->
 			<version>${version.lombok}</version>
 			<scope>compile</scope>
 		</dependency>
-		<!-- SLF4J is a logging facade that let's us change the actual logger used 
+		<!-- SLF4J is a logging facade that let's us change the actual logger
+		used 
 			under the covers without changing our code, slf4j-jdk14 is for output to 
 			the standard Java logging utilities. By making the dependency declaration 
 			below Maven will bring in the core SLF4J jar files, and also the SLJ4J to 

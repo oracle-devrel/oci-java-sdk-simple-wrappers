@@ -133,7 +133,7 @@ public class IdentityProcessor {
 	 * @throws IllegalArgumentException
 	 * @throws Exception
 	 */
-	public Compartment locateCompartmentByPath(@NonNull String path, @NonNull String startCompartmentId)
+	public Compartment locateCompartmentByPath(@NonNull String path, String startCompartmentId)
 			throws IllegalArgumentException, Exception {
 		// if the path starts with / then remove the / and search in the tenancy root,
 		// ignoring the start comparment
