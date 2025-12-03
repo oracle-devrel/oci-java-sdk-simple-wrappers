@@ -16,7 +16,7 @@ To get started you will also user API signing keys and credentials for the user 
 
 To use the code to manage objects in OCI you will need to :
 
-Create an AuthenticationProcessor (com.oracle.timg.oci.authentication) - this does the security work for you, speciy the OCI configuration file section to use for the connection and optionally the OCI region to work on (by default it will use the region in the config file)
+Create an AuthenticationProcessor (com.oracle.timg.oci.authentication) - this does the security work for you, specify the OCI configuration file section to use for the connection and optionally the OCI region to work on (by default it will use the region in the config file)
 
 From there use the other processor classes as needed, these will all need the AuthenticationProcessor you created as part of their consructor.
 
