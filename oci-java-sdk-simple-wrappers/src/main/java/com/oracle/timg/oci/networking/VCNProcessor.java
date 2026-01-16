@@ -209,7 +209,7 @@ public class VCNProcessor {
 	 */
 	public List<Vcn> listVcns(@NonNull String parentCompartmentOcid) {
 		Iterable<Vcn> vcns = vcnClient.getPaginators()
-				.listVcnsRecordIterator(new ListVcnsRequest().builder().compartmentId(parentCompartmentOcid)
+				.listVcnsRecordIterator(ListVcnsRequest.builder().compartmentId(parentCompartmentOcid)
 						.lifecycleState(Vcn.LifecycleState.Available).lifecycleState(Vcn.LifecycleState.Provisioning)
 						.lifecycleState(Vcn.LifecycleState.Updating).build());
 		return StreamSupport.stream(vcns.spliterator(), false).toList();
