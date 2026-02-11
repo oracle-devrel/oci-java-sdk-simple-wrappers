@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2023 Oracle and/or its affiliates.
+<!-- Copyright (c) 2026 Oracle and/or its affiliates.
 
 The Universal Permissive License (UPL), Version 1.0
 
@@ -41,13 +41,13 @@ SOFTWARE. -->
 	<groupId>com.oracle.timg.demo</groupId>
 	<artifactId>oci-java-sdk-simple-wrappers</artifactId>
 	<name>ocicore</name>
-	<version>1.0.1</version>
+	<version>1.1.0</version>
 	<properties>
-        <packaging>jar</packaging>
-        <jdk.version>21</jdk.version>
-        <release.version>21</release.version>
+		<packaging>jar</packaging>
+		<jdk.version>21</jdk.version>
+		<release.version>21</release.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<version.ocisdk>3.77.0</version.ocisdk>
+		<version.ocisdk>3.80.1</version.ocisdk>
 		<version.lombok>1.18.42</version.lombok>
 		<version.slf4j>2.0.7</version.slf4j>
 		<maven.compiler.source>21</maven.compiler.source>
@@ -89,12 +89,20 @@ SOFTWARE. -->
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-keymanagement</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
 			<artifactId>oci-java-sdk-vault</artifactId>
 		</dependency>
 		<dependency>
-          <groupId>com.oracle.oci.sdk</groupId>
-          <artifactId>oci-java-sdk-iot</artifactId>
-       </dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-secrets</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.oci.sdk</groupId>
+			<artifactId>oci-java-sdk-iot</artifactId>
+		</dependency>
 		<!-- Lombok does the auto method creation, used for the log stuff -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
