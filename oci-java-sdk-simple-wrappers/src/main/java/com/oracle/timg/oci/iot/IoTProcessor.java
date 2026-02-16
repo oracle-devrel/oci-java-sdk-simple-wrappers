@@ -1,4 +1,4 @@
-/*Copyright (c) 2025 Oracle and/or its affiliates.
+/*Copyright (c) 2026 Oracle and/or its affiliates.
 
 The Universal Permissive License (UPL), Version 1.0
 
@@ -66,6 +66,8 @@ import com.oracle.bmc.iot.requests.GetIotDomainRequest;
 import com.oracle.bmc.iot.requests.ListDigitalTwinAdaptersRequest;
 import com.oracle.bmc.iot.requests.ListDigitalTwinInstancesRequest;
 import com.oracle.bmc.iot.requests.ListDigitalTwinModelsRequest;
+import com.oracle.bmc.iot.requests.ListDigitalTwinModelsRequest.SortBy;
+import com.oracle.bmc.iot.requests.ListDigitalTwinModelsRequest.SortOrder;
 import com.oracle.bmc.iot.requests.ListIotDomainGroupsRequest;
 import com.oracle.bmc.iot.requests.ListIotDomainsRequest;
 import com.oracle.bmc.iot.responses.CreateDigitalTwinInstanceResponse;
@@ -115,7 +117,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * gets a list of summaries of all IotDomainGroups in the tenancy root
+	 * gets a list of summaries of all active IotDomainGroups in the tenancy root
 	 * compartment
 	 * 
 	 * @return
@@ -125,8 +127,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * gets a list of summaries of all IotDomainGroups in the specified parent
-	 * compartment
+	 * gets a list of summaries of all active IotDomainGroups in the specified
+	 * parent compartment
 	 * 
 	 * @param parentCompartment
 	 * @return
@@ -137,8 +139,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * gets a list of summaries of all IotDomainGroups in the compartment with the
-	 * specified parent compartment ocid
+	 * gets a list of summaries of all active IotDomainGroups in the compartment
+	 * with the specified parent compartment ocid
 	 * 
 	 * @param parentCompartmentOcid
 	 * @return
@@ -148,7 +150,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * generate a list of all domain group summaries in a compartment, if
+	 * generate a list of all active domain group summaries in a compartment, if
 	 * displayName is not null limits it to only those matching the display name
 	 * 
 	 * @param parentCompartmentOcid
@@ -162,7 +164,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * generate a list of all domain group summaries in a compartment, if
+	 * generate a list of all active domain group summaries in a compartment, if
 	 * displayName is not null limits it to only those matching the display name
 	 * 
 	 * @param parentCompartmentOcid
@@ -172,8 +174,28 @@ public class IoTProcessor {
 	 */
 	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid,
 			String displayName) {
+		return listIoTDomainGroupSummariesInCompartment(parentCompartmentOcid, displayName,
+				IotDomainGroup.LifecycleState.Active);
+	}
+
+	/**
+	 * generate a list of all domain group summaries ordered by displayName in a
+	 * compartment in the lifecycle state, if displayName is not null limits it to
+	 * only those matching the display name. if lifecycle states is null
+	 * 
+	 * @param parentCompartmentOcid
+	 * @param displayName
+	 * 
+	 * @return
+	 */
+	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid,
+			String displayName, IotDomainGroup.LifecycleState lifecycleState) {
 		ListIotDomainGroupsRequest.Builder requestBuilder = ListIotDomainGroupsRequest.builder()
-				.compartmentId(parentCompartmentOcid);
+				.compartmentId(parentCompartmentOcid).sortBy(ListIotDomainGroupsRequest.SortBy.DisplayName)
+				.sortOrder(ListIotDomainGroupsRequest.SortOrder.Asc);
+		if (lifecycleState != null) {
+			requestBuilder.lifecycleState(lifecycleState);
+		}
 		if (displayName != null) {
 			requestBuilder.displayName(displayName);
 		}
@@ -183,7 +205,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * gets a list of all IotDomainGroups in the tenancy root compartment
+	 * gets a list of all active IotDomainGroups in the tenancy root compartment
 	 * 
 	 * @return
 	 */
@@ -192,8 +214,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * returns a list of all IotDomainGroups in the compartment with the specified
-	 * parent compartment ocid
+	 * returns a list of all active IotDomainGroups in the compartment with the
+	 * specified parent compartment ocid
 	 * 
 	 * @param parentCompartmentOcid
 	 * @return
@@ -203,7 +225,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * returns a list of all IotDomainGroups in the specified parent compartment
+	 * returns a list of all active IotDomainGroups in the specified parent
+	 * compartment
 	 * 
 	 * @param parentCompartmentOcid
 	 * @return
@@ -213,8 +236,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * * returns a list of all IotDomainGroups with a matching displayName in the
-	 * compartment with the specified parent compartment ocid. If displayName is
+	 * * returns a list of all active IotDomainGroups with a matching displayName in
+	 * the compartment with the specified parent compartment ocid. If displayName is
 	 * null returns all domain groups
 	 * 
 	 * @param parentCompartmentOcid
@@ -224,14 +247,30 @@ public class IoTProcessor {
 	 */
 	public List<IotDomainGroup> listIoTDomainGroupsInCompartment(@NonNull String parentCompartmentOcid,
 			String displayName) {
+		return listIoTDomainGroupsInCompartment(parentCompartmentOcid, displayName,
+				IotDomainGroup.LifecycleState.Active);
+	}
+
+	/**
+	 * * returns a list of all IotDomainGroups in the lifecycleState with a matching
+	 * displayName in the compartment with the specified parent compartment ocid. If
+	 * displayName is null returns all domain groups
+	 * 
+	 * @param parentCompartmentOcid
+	 * @param displayName
+	 * 
+	 * @return
+	 */
+	public List<IotDomainGroup> listIoTDomainGroupsInCompartment(@NonNull String parentCompartmentOcid,
+			String displayName, IotDomainGroup.LifecycleState lifecycleState) {
 		List<IotDomainGroupSummary> domainGroupSummaries = listIoTDomainGroupSummariesInCompartment(
-				parentCompartmentOcid, displayName);
+				parentCompartmentOcid, displayName, lifecycleState);
 		return domainGroupSummaries.stream().map(dsg -> getIotDomainGroup(dsg)).toList();
 	}
 
 	/**
-	 * gets the **FIRST** IotDomainGroupSummary with a matching display name in the
-	 * compartment with the specified OCID, or null if there are no matches
+	 * gets the **FIRST** active IotDomainGroupSummary with a matching display name
+	 * in the compartment with the specified OCID, or null if there are no matches
 	 * 
 	 * @param parentCompartmentOcid
 	 * @param displayName
@@ -240,8 +279,24 @@ public class IoTProcessor {
 	 */
 	public IotDomainGroupSummary getIotDomainGroupSummary(@NonNull String parentCompartmentOcid,
 			@NonNull String displayName) {
+		return getIotDomainGroupSummary(parentCompartmentOcid, displayName, IotDomainGroup.LifecycleState.Active);
+	}
+
+	/**
+	 * gets the **FIRST** IotDomainGroupSummary with a state as specified and a
+	 * matching display name in the compartment with the specified OCID, or null if
+	 * there are no matches. If the lifecycleStates is null then all states are
+	 * allowed.
+	 * 
+	 * @param parentCompartmentOcid
+	 * @param displayName
+	 * 
+	 * @return
+	 */
+	public IotDomainGroupSummary getIotDomainGroupSummary(@NonNull String parentCompartmentOcid,
+			@NonNull String displayName, IotDomainGroup.LifecycleState lifecycleState) {
 		List<IotDomainGroupSummary> iotDomainGroupSummaries = listIoTDomainGroupSummariesInCompartment(
-				parentCompartmentOcid, displayName);
+				parentCompartmentOcid, displayName, lifecycleState);
 		if (iotDomainGroupSummaries.isEmpty()) {
 			return null;
 		}
@@ -249,9 +304,9 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * gets the **FIRST** IotDomainGroup with matching displayName in the
-	 * compartment with the specified parent compartment ocid, or null if there are
-	 * no matches
+	 * gets the **FIRST** (by displayName ascending) active IotDomainGroup with
+	 * matching displayName in the compartment with the specified parent compartment
+	 * ocid, or null if there are no matches
 	 * 
 	 * @param parentCompartmentOcid
 	 * @param displayName
@@ -259,8 +314,24 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public IotDomainGroup getIotDomainGroup(@NonNull String parentCompartmentOcid, @NonNull String displayName) {
+		return getIotDomainGroup(parentCompartmentOcid, displayName, IotDomainGroup.LifecycleState.Active);
+	}
+
+	/**
+	 * gets the **FIRST** IotDomainGroup with matching displayName and status in
+	 * lifecycleStates in the compartment with the specified parent compartment
+	 * ocid, or null if there are no matches. If lifecycleState is null all states
+	 * are allowed
+	 * 
+	 * @param parentCompartmentOcid
+	 * @param displayName
+	 * 
+	 * @return
+	 */
+	public IotDomainGroup getIotDomainGroup(@NonNull String parentCompartmentOcid, @NonNull String displayName,
+			IotDomainGroup.LifecycleState lifecycleState) {
 		List<IotDomainGroupSummary> iotDomainGroupSummaries = listIoTDomainGroupSummariesInCompartment(
-				parentCompartmentOcid, displayName);
+				parentCompartmentOcid, displayName, lifecycleState);
 		if (iotDomainGroupSummaries.isEmpty()) {
 			return null;
 		}
@@ -268,7 +339,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * gets the IotDomainGroup details from the provided summary
+	 * gets the IotDomainGroup details from the provided summary, regardless of the
+	 * state
 	 * 
 	 * @param iotDomainGroupSummary
 	 * @return
@@ -280,41 +352,44 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a summary of all IotDomains in the specified IoTDomainGroup
+	 * get a summary of all active IotDomains in the specified IoTDomainGroup
 	 * 
 	 * @param iotDomainGroupSummary
 	 * @return
 	 */
 	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(
 			@NonNull IotDomainGroupSummary iotDomainGroupSummary) {
-		return listIotDomainSummariesInIotDomainGroup(iotDomainGroupSummary.getId());
+		return listIotDomainSummariesInIotDomainGroup(iotDomainGroupSummary.getCompartmentId(),
+				iotDomainGroupSummary.getId());
 	}
 
 	/**
-	 * get a summary of all IotDomains in the specified IoTDomainGroup
+	 * get a summary of all active IotDomains in the specified IoTDomainGroup
 	 * 
 	 * @param iotDomainGroup
 	 * @return
 	 */
 
 	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull IotDomainGroup iotDomainGroup) {
-		return listIotDomainSummariesInIotDomainGroup(iotDomainGroup.getId());
+		return listIotDomainSummariesInIotDomainGroup(iotDomainGroup.getCompartmentId(), iotDomainGroup.getId());
 
 	}
 
 	/**
-	 * get a summary of all IotDomains in the specified IoTDomainGroup
+	 * get a summary of all active IotDomains in the specified IoTDomainGroup
 	 * 
 	 * @param iotDomainGroupOcid
 	 * @return
 	 */
-	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull String iotDomainGroupOcid) {
-		return listIotDomainSummariesInIotDomainGroup(iotDomainGroupOcid, null);
+	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid) {
+		return listIotDomainSummariesInIotDomainGroup(compartmentOcid, iotDomainGroupOcid, null);
 	}
 
 	/**
-	 * get a summary of all IotDomains in the specified IoTDomainGroup, if
-	 * displayName is not null limits on only domains with a matching name
+	 * get a summary of all active IotDomains in the specified IoTDomainGroup and
+	 * it's compartment, if displayName is not null limits on only domains with a
+	 * matching name
 	 * 
 	 * @param iotDomainGroupSummary
 	 * @Param displayName
@@ -322,13 +397,16 @@ public class IoTProcessor {
 	 */
 	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(
 			@NonNull IotDomainGroupSummary iotDomainGroupSummary, String displayName) {
-		return listIotDomainSummariesInIotDomainGroup(iotDomainGroupSummary.getId(), displayName);
+		return listIotDomainSummariesInIotDomainGroup(iotDomainGroupSummary.getCompartmentId(),
+				iotDomainGroupSummary.getId(), displayName);
 
 	}
 
 	/**
-	 * get a summary of all IotDomains in the specified IoTDomainGroup, if
-	 * displayName is not null limits on only domains with a matching name
+	 * get a summary of all active IotDomains in the specified IoTDomainGroup and
+	 * its compartment, if displayName is not null limits on only domains with a
+	 * matching name, assumes that the iod domain is in the same compartment as the
+	 * iot domain group
 	 * 
 	 * @param iotDomainGroup
 	 * @Param displayName
@@ -336,63 +414,126 @@ public class IoTProcessor {
 	 */
 	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull IotDomainGroup iotDomainGroup,
 			String displayName) {
-		return listIotDomainSummariesInIotDomainGroup(iotDomainGroup.getId(), displayName);
+		return listIotDomainSummariesInIotDomainGroup(iotDomainGroup.getCompartmentId(), iotDomainGroup.getId(),
+				displayName, IotDomain.LifecycleState.Active);
 	}
 
 	/**
-	 * get a summary of all IotDomains in the specified IoTDomainGroup, if
-	 * displayName is not null limits on only domains with a matching name
+	 * get a summary of all active IotDomains in the specified IoTDomainGroup and
+	 * compartment, if displayName is not null limits on only domains with a
+	 * matching name
 	 * 
+	 * @param compartmentOcid
 	 * @param iotDomainGroupSummaryOcid
 	 * @Param displayName
 	 * @return
 	 */
-	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull String iotDomainGroupOcid,
-			String displayName) {
-		ListIotDomainsRequest.Builder requestBuilder = ListIotDomainsRequest.builder()
-				.iotDomainGroupId(iotDomainGroupOcid);
+	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid, String displayName) {
+		return listIotDomainSummariesInIotDomainGroup(compartmentOcid, iotDomainGroupOcid, displayName,
+				IotDomain.LifecycleState.Active);
+	}
+
+	/**
+	 * get a summary of all IotDomains with the lifecycle state in the specified
+	 * IoTDomainGroup and compartment, if displayName is not null limits on only
+	 * domains with a matching name if lifecycleState is null then all states are
+	 * allowed
+	 * 
+	 * @param compartmentOcid
+	 * @param iotDomainGroupSummaryOcid
+	 * @Param displayName
+	 * @return
+	 */
+	public List<IotDomainSummary> listIotDomainSummariesInIotDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid, String displayName, IotDomain.LifecycleState lifecycleState) {
+		return listIotDomainSummaries(compartmentOcid, iotDomainGroupOcid, displayName, lifecycleState);
+	}
+
+	/**
+	 * get a summary of all IotDomains with the lifecycle state in the specified
+	 * compartment, if displayName is not null limits on only domains with a
+	 * matching name if lifecycleState is null then all states are allowed
+	 * 
+	 * @param compartmentOcid
+	 * @Param displayName
+	 * @return
+	 */
+	public List<IotDomainSummary> listIotDomainSummariesInCompartment(@NonNull Compartment compartment,
+			String displayName, IotDomain.LifecycleState lifecycleState) {
+		return listIotDomainSummariesInCompartment(compartment.getId(), displayName, lifecycleState);
+
+	}
+
+	/**
+	 * get a summary of all IotDomains with the lifecycle state in the specified
+	 * compartment, if displayName is not null limits on only domains with a
+	 * matching name if lifecycleState is null then all states are allowed
+	 * 
+	 * @param compartmentOcid
+	 * @Param displayName
+	 * @return
+	 */
+	public List<IotDomainSummary> listIotDomainSummariesInCompartment(@NonNull String compartmentOcid,
+			String displayName, IotDomain.LifecycleState lifecycleState) {
+		return listIotDomainSummaries(compartmentOcid, null, displayName, lifecycleState);
+
+	}
+
+	private List<IotDomainSummary> listIotDomainSummaries(String compartmentOcid, String iotDomainGroupOcid,
+			String displayName, IotDomain.LifecycleState lifecycleState) {
+		ListIotDomainsRequest.Builder requestBuilder = ListIotDomainsRequest.builder().compartmentId(compartmentOcid)
+				.sortBy(ListIotDomainsRequest.SortBy.DisplayName).sortOrder(ListIotDomainsRequest.SortOrder.Asc);
+		if (iotDomainGroupOcid != null) {
+			requestBuilder.iotDomainGroupId(iotDomainGroupOcid);
+		}
+		if (lifecycleState != null) {
+			requestBuilder.lifecycleState(lifecycleState);
+		}
 		if (displayName != null) {
 			requestBuilder.displayName(displayName);
 		}
 		Iterable<IotDomainSummary> domainGroupSummaries = iotClient.getPaginators()
 				.listIotDomainsRecordIterator(requestBuilder.build());
 		return StreamSupport.stream(domainGroupSummaries.spliterator(), false).toList();
+
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroupSummary
+	 * get a list of all active IotDomains in the specified IoTDomainGroupSummary
 	 * 
 	 * @param iotDomainGroupSummary
 	 * @return
 	 */
 	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull IotDomainGroupSummary iotDomainGroupSummary) {
-		return listIotDomainsInIotDomainGroup(iotDomainGroupSummary.getId());
+		return listIotDomainsInIotDomainGroup(iotDomainGroupSummary.getCompartmentId(), iotDomainGroupSummary.getId());
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroup
+	 * get a list of all active IotDomains in the specified IoTDomainGroup
 	 * 
 	 * @param iotDomainGroup
 	 * @return
 	 */
 	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull IotDomainGroup iotDomainGroup) {
-		return listIotDomainsInIotDomainGroup(iotDomainGroup.getId());
+		return listIotDomainsInIotDomainGroup(iotDomainGroup.getCompartmentId(), iotDomainGroup.getId());
 
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroupSummary
+	 * get a list of all active IotDomains in the specified IoTDomainGroupSummary
 	 * 
 	 * @param iotDomainGroupOcid
 	 * @return
 	 */
-	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull String iotDomainGroupOcid) {
-		return listIotDomainsInIotDomainGroup(iotDomainGroupOcid, null);
+	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid) {
+		return listIotDomainsInIotDomainGroup(compartmentOcid, iotDomainGroupOcid, null);
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroupSummary, if
-	 * displayName is not null limits on only domains with a matching name
+	 * get a list of all active IotDomains in the specified IoTDomainGroupSummary,
+	 * if displayName is not null limits on only domains with a matching name
 	 * 
 	 * @param iotDomainGroupSummary
 	 * @Param displayName
@@ -400,34 +541,159 @@ public class IoTProcessor {
 	 */
 	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull IotDomainGroupSummary iotDomainGroupSummary,
 			String displayName) {
-		return listIotDomainsInIotDomainGroup(iotDomainGroupSummary.getId(), displayName);
+		return listIotDomainsInIotDomainGroup(iotDomainGroupSummary.getCompartmentId(), iotDomainGroupSummary.getId(),
+				displayName);
 
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroup, if displayName
-	 * is not null limits on only domains with a matching name
+	 * get a list of all active IotDomains in the specified IoTDomainGroup, if
+	 * displayName is not null limits on only domains with a matching name
 	 * 
 	 * @param iotDomainGroup
 	 * @Param displayName
 	 * @return
 	 */
 	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull IotDomainGroup iotDomainGroup, String displayName) {
-		return listIotDomainsInIotDomainGroup(iotDomainGroup.getId(), displayName);
+		return listIotDomainsInIotDomainGroup(iotDomainGroup.getCompartmentId(), iotDomainGroup.getId(), displayName);
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroup, if displayName
-	 * is not null limits on only domains with a matching name
+	 * get a list of all active IotDomains in the specified IoTDomainGroup, if
+	 * displayName is not null limits on only domains with a matching name
 	 * 
 	 * @param iotDomainGroupOcid
 	 * @Param displayName
 	 * @return
 	 */
-	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull String iotDomainGroupOcid, String displayName) {
-		List<IotDomainSummary> domainSummaries = listIotDomainSummariesInIotDomainGroup(iotDomainGroupOcid,
-				displayName);
+	public List<IotDomain> listIotDomainsInIotDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid, String displayName) {
+		List<IotDomainSummary> domainSummaries = listIotDomainSummariesInIotDomainGroup(compartmentOcid,
+				iotDomainGroupOcid, displayName);
 		return domainSummaries.stream().map(ds -> getIotDomain(ds)).toList();
+	}
+
+	/**
+	 * gets the **FIRST** active IotDomainSummary in the domain group with a
+	 * matching displayName. if displayName is null then any name will match
+	 * 
+	 * @param iotDomainGroup
+	 * @param displayName
+	 * @return
+	 */
+	public IotDomainSummary getIotDomainSummaryInDomainGroup(@NonNull IotDomainGroup iotDomainGroup,
+			String displayName) {
+		return getIotDomainSummaryInDomainGroup(iotDomainGroup.getCompartmentId(), iotDomainGroup.getId(), displayName);
+	}
+
+	/**
+	 * gets the **FIRST** active IotDomainSummary in the domain group with a
+	 * matching displayName. if displayName is null then any name will match
+	 * 
+	 * @param iotDomainGroupSummary
+	 * @param displayName
+	 * @return
+	 */
+	public IotDomainSummary getIotDomainSummaryInDomainGroup(@NonNull IotDomainGroupSummary iotDomainGroupSummary,
+			String displayName) {
+		return getIotDomainSummaryInDomainGroup(iotDomainGroupSummary.getCompartmentId(), iotDomainGroupSummary.getId(),
+				displayName);
+	}
+
+	/**
+	 * gets the **FIRST** active IotDomainSummary in the domain group with a
+	 * matching displayName. if displayName is null then any name will match
+	 * 
+	 * @param iotDomainGroupOcid
+	 * @param displayName
+	 * @return
+	 */
+	public IotDomainSummary getIotDomainSummaryInDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid, String displayName) {
+		return getIotDomainSummaryInDomainGroup(compartmentOcid, iotDomainGroupOcid, displayName,
+				IotDomain.LifecycleState.Active);
+	}
+
+	/**
+	 * gets the **FIRST** IotDomainSummary in the domain group with a matching name
+	 * and lifecycle state if displayName is null then any name will match, if
+	 * lifecycleStates is null or empty then all states will match
+	 * 
+	 * @param iotDomainGroupOcid
+	 * @param displayName
+	 * @param lifecycleStates
+	 * @return
+	 */
+	public IotDomainSummary getIotDomainSummaryInDomainGroup(@NonNull String compartmentOcid,
+			@NonNull String iotDomainGroupOcid, String displayName, IotDomain.LifecycleState lifecycleState) {
+		List<IotDomainSummary> iotDomainSummaries = listIotDomainSummariesInIotDomainGroup(compartmentOcid,
+				iotDomainGroupOcid, displayName, lifecycleState);
+		if (iotDomainSummaries.isEmpty()) {
+			return null;
+		}
+		return iotDomainSummaries.getFirst();
+
+	}
+
+	/**
+	 * gets the **FIRST** active IotDomain in the domain group with a matching
+	 * displayName. if displayName is null then any name will match
+	 * 
+	 * @param iotDomainGroup
+	 * @param displayName
+	 * @return
+	 */
+	public IotDomain getIotDomainInDomainGroup(@NonNull IotDomainGroup iotDomainGroup, String displayName) {
+		return getIotDomainInDomainGroup(iotDomainGroup.getCompartmentId(), iotDomainGroup.getId(), displayName);
+	}
+
+	/**
+	 * gets the **FIRST** active IotDomain in the domain group with a matching
+	 * displayName. if displayName is null then any name will match
+	 * 
+	 * @param iotDomainGroupSummary
+	 * @param displayName
+	 * @return
+	 */
+	public IotDomain getIotDomainInDomainGroup(@NonNull IotDomainGroupSummary iotDomainGroupSummary,
+			String displayName) {
+		return getIotDomainInDomainGroup(iotDomainGroupSummary.getCompartmentId(), iotDomainGroupSummary.getId(),
+				displayName);
+	}
+
+	/**
+	 * gets the **FIRST** active IotDomain in the domain group with a matching
+	 * displayName. if displayName is null then any name will match
+	 * 
+	 * @param iotDomainGroupOcid
+	 * @param displayName
+	 * @return
+	 */
+	public IotDomain getIotDomainInDomainGroup(@NonNull String compartmentOcid, @NonNull String iotDomainGroupOcid,
+			String displayName) {
+		return getIotDomainInDomainGroup(compartmentOcid, iotDomainGroupOcid, displayName,
+				IotDomain.LifecycleState.Active);
+	}
+
+	/**
+	 * gets the **FIRST** IotDomain in the domain group with a matching name and
+	 * lifecycle state if displayName is null then any name will match, if
+	 * lifecycleStates is null or empty then all states will match
+	 * 
+	 * @param iotDomainGroupOcid
+	 * @param displayName
+	 * @param lifecycleState
+	 * @return
+	 */
+	public IotDomain getIotDomainInDomainGroup(@NonNull String compartmentOcid, @NonNull String iotDomainGroupOcid,
+			String displayName, IotDomain.LifecycleState lifecycleState) {
+		List<IotDomainSummary> iotDomainSummaries = listIotDomainSummariesInIotDomainGroup(compartmentOcid,
+				iotDomainGroupOcid, displayName, lifecycleState);
+		if (iotDomainSummaries.isEmpty()) {
+			return null;
+		}
+		return getIotDomain(iotDomainSummaries.getFirst());
+
 	}
 
 	/**
@@ -437,54 +703,24 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public IotDomain getIotDomain(@NonNull IotDomainSummary iotDomainSummary) {
+		return getIotDomain(iotDomainSummary.getId());
+	}
+
+	/**
+	 * get the iotdomain (i.e. with full details) from the specified summary
+	 * 
+	 * @param iotDomainSummary
+	 * @return
+	 */
+	public IotDomain getIotDomain(@NonNull String iotDomainSummaryOcid) {
 		GetIotDomainResponse resp = iotClient
-				.getIotDomain(GetIotDomainRequest.builder().iotDomainId(iotDomainSummary.getId()).build());
+				.getIotDomain(GetIotDomainRequest.builder().iotDomainId(iotDomainSummaryOcid).build());
 		return resp.getIotDomain();
 	}
 
 	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroup, if displayName
-	 * is not null limits on only domains with a matching name
-	 * 
-	 * @param iotDomainGroup
-	 * @Param displayName
-	 * @return
-	 */
-	public IotDomain getIotDomain(@NonNull IotDomainGroup iotDomainGroup, @NonNull String displayName) {
-		return getIotDomain(iotDomainGroup.getId(), displayName);
-	}
-
-	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroup, if displayName
-	 * is not null limits on only domains with a matching name
-	 * 
-	 * @param iotDomainGroup
-	 * @Param displayName
-	 * @return
-	 */
-	public IotDomain getIotDomain(@NonNull IotDomainGroupSummary iotDomainGroupSummary, @NonNull String displayName) {
-		return getIotDomain(iotDomainGroupSummary.getId(), displayName);
-	}
-
-	/**
-	 * get a list of all IotDomains in the specified IoTDomainGroup, if displayName
-	 * is not null limits on only domains with a matching name
-	 * 
-	 * @param iotDomainGroupOcid
-	 * @Param displayName
-	 * @return
-	 */
-	public IotDomain getIotDomain(@NonNull String iotDomainGroupOcid, @NonNull String displayName) {
-		List<IotDomainSummary> iotDomainSummaries = listIotDomainSummariesInIotDomainGroup(iotDomainGroupOcid,
-				displayName);
-		if (iotDomainSummaries.isEmpty()) {
-			return null;
-		}
-		return getIotDomain(iotDomainSummaries.getFirst());
-	}
-
-	/**
-	 * get a list of all DigitalTwinModelSummary in the specified IoTDomainSummary
+	 * get a list of all active DigitalTwinModelSummary in the specified
+	 * IoTDomainSummary
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -494,7 +730,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModelSummary in the specified IoTDomain
+	 * get a list of all active DigitalTwinModelSummary in the specified IoTDomain
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -505,7 +741,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModelSummary in the specified IoTDomain
+	 * get a list of all active DigitalTwinModelSummary in the specified IoTDomain
 	 * 
 	 * @param iotDomainOcid
 	 * @return
@@ -516,8 +752,9 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModelSummary in the specified IoTDomainSummary,
-	 * if displayName is not null limits on only domains with a matching name
+	 * get a list of all active DigitalTwinModelSummary in the specified
+	 * IoTDomainSummary, if displayName is not null limits on only domains with a
+	 * matching name
 	 * 
 	 * @param iotDomainSummary
 	 * @Param displayName
@@ -529,8 +766,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModelSummary in the specified IoTDomain, if
-	 * displayName is not null limits on only domains with a matching name
+	 * get a list of all active DigitalTwinModelSummary in the specified IoTDomain,
+	 * if displayName is not null limits on only domains with a matching name
 	 * 
 	 * @param iotDomain
 	 * @Param displayName
@@ -543,8 +780,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModelSummary in the specified IoTDomain, if
-	 * displayName is not null limits on only domains with a matching name
+	 * get a list of all active DigitalTwinModelSummary in the specified IoTDomain,
+	 * if displayName is not null limits on only domains with a matching name
 	 * 
 	 * @param iotDomainOcid
 	 * @Param displayName
@@ -552,8 +789,27 @@ public class IoTProcessor {
 	 */
 	public List<DigitalTwinModelSummary> listDigitalTwinModelSummaries(@NonNull String iotDomainOcid,
 			String displayName) {
+		return listDigitalTwinModelSummaries(iotDomainOcid, displayName,
+				com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get a list of all DigitalTwinModelSummary in the specified lifecycle state
+	 * and IoTDomain, if displayName is not null limits on only domains with a
+	 * matching name. If lifecycle states is null or empty defaults to all allowed
+	 * states
+	 * 
+	 * @param iotDomainOcid
+	 * @Param displayName
+	 * @return
+	 */
+	public List<DigitalTwinModelSummary> listDigitalTwinModelSummaries(@NonNull String iotDomainOcid,
+			String displayName, com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
 		ListDigitalTwinModelsRequest.Builder requestBuilder = ListDigitalTwinModelsRequest.builder()
-				.iotDomainId(iotDomainOcid);
+				.iotDomainId(iotDomainOcid).sortBy(SortBy.DisplayName).sortOrder(SortOrder.Asc);
+		if (lifecycleState != null) {
+			requestBuilder.lifecycleState(lifecycleState);
+		}
 		if (displayName != null) {
 			requestBuilder.displayName(displayName);
 		}
@@ -563,7 +819,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomainSummary
+	 * get a list of all active DigitalTwinModel in the specified IoTDomainSummary
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -573,7 +829,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomain
+	 * get a list of all active DigitalTwinModel in the specified IoTDomain
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -584,7 +840,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomain
+	 * get a list of all active DigitalTwinModel in the specified IoTDomain
 	 * 
 	 * @param iotDomainOcid
 	 * @return
@@ -595,8 +851,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomainSummary, if
-	 * displayName is not null it's used to limit the results
+	 * get a list of all active DigitalTwinModel in the specified IoTDomainSummary,
+	 * if displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomainSummary
 	 * @param displayName
@@ -608,8 +864,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomain, if displayName
-	 * is not null it's used to limit the results
+	 * get a list of all active DigitalTwinModel in the specified IoTDomain, if
+	 * displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomain
 	 * @param displayName
@@ -629,13 +885,28 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public List<DigitalTwinModel> listDigitalTwinModels(@NonNull String iotDomainOcid, String displayName) {
-		List<DigitalTwinModelSummary> modelSummaries = listDigitalTwinModelSummaries(iotDomainOcid, displayName);
+		return listDigitalTwinModels(iotDomainOcid, displayName, com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get a list of all active DigitalTwinModel in the specified state and
+	 * IoTDomain, if displayName is not null it's used to limit the results. if
+	 * lifecycleStates is null then all states are allowed
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @return
+	 */
+	public List<DigitalTwinModel> listDigitalTwinModels(@NonNull String iotDomainOcid, String displayName,
+			com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
+		List<DigitalTwinModelSummary> modelSummaries = listDigitalTwinModelSummaries(iotDomainOcid, displayName,
+				lifecycleState);
 		return modelSummaries.stream().map(ms -> getDigitalTwinModel(ms)).toList();
 	}
 
 	/**
-	 * get gets DigitalTwinModel in the specified IoTDomainSummary, with the
-	 * specified displayName, if there are no matches returns null
+	 * get the **FIRST** active DigitalTwinModel in the specified IoTDomainSummary,
+	 * with the specified displayName, if there are no matches returns null
 	 * 
 	 * @param iotDomainSummary
 	 * @param displayName
@@ -647,8 +918,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get gets DigitalTwinModel in the specified IoTDomain, with the specified
-	 * displayName, if there are no matches returns null
+	 * get the **FIRST** active DigitalTwinModel in the specified IoTDomain, with
+	 * the specified displayName, if there are no matches returns null
 	 * 
 	 * @param iotDomain
 	 * @param displayName
@@ -660,16 +931,30 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get gets DigitalTwinModel in the specified IoTDomain, with the specified
-	 * displayName, if there are no matches returns null
+	 * get the **FIRST active DigitalTwinModel in the specified IoTDomain, with the
+	 * specified displayName, if there are no matches returns null
 	 * 
 	 * @param iotDomainOcid
 	 * @param displayName
 	 * @return
 	 */
 	public DigitalTwinModel getDigitalTwinModel(@NonNull String iotDomainOcid, @NonNull String displayName) {
+		return getDigitalTwinModel(iotDomainOcid, displayName, com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get the **FIRST DigitalTwinModel in the specified state and IoTDomain, with
+	 * the specified displayName, if there are no matches returns null. if
+	 * lifecycleStates is null then all states are returned
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @return
+	 */
+	public DigitalTwinModel getDigitalTwinModel(@NonNull String iotDomainOcid, @NonNull String displayName,
+			com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
 		List<DigitalTwinModelSummary> digitalTwinModelSummaries = listDigitalTwinModelSummaries(iotDomainOcid,
-				displayName);
+				displayName, lifecycleState);
 		if (digitalTwinModelSummaries.isEmpty()) {
 			return null;
 		}
@@ -677,7 +962,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get gets DigitalTwinModel from the specified DigitalTwinModelSummary
+	 * get gets DigitalTwinModel from the specified DigitalTwinModelSummary.
 	 * 
 	 * @param digitalTwinModelSummary
 	 * @return
@@ -689,7 +974,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinAdapterSummary in the specified IotDomain
+	 * get all active DigitalTwinAdapterSummary in the specified IotDomain
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -699,7 +984,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinAdapterSummary in the specified IotDomain
+	 * get all active DigitalTwinAdapterSummary in the specified IotDomain
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -710,7 +995,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinAdapterSummary in the specified IotDomain
+	 * get all active DigitalTwinAdapterSummary in the specified IotDomain
 	 * 
 	 * @param iotDomainOcid
 	 * @return
@@ -721,8 +1006,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinAdapterSummary in the specified IotDomain, if displayName
-	 * is non null limits to only results with that displayName
+	 * get all active DigitalTwinAdapterSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -733,8 +1018,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinAdapterSummary in the specified IotDomain, if displayName
-	 * is non null limits to only results with that displayName
+	 * get all active DigitalTwinAdapterSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -746,18 +1031,36 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinAdapterSummary in the specified IotDomain, if displayName
-	 * is non null limits to only results with that displayName
+	 * get all active DigitalTwinAdapterSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomainOcid
 	 * @return
 	 */
 	public List<DigitalTwinAdapterSummary> listDigitalTwinAdapterSummaries(@NonNull String iotDomainOcid,
 			String displayName) {
+		return listDigitalTwinAdapterSummaries(iotDomainOcid, displayName,
+				com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get all DigitalTwinAdapterSummary in the specified state and IotDomain, if
+	 * displayName is non null limits to only results with that displayName. If
+	 * lifecycleStates is null then all states are allowed
+	 * 
+	 * @param iotDomainOcid
+	 * @return
+	 */
+	public List<DigitalTwinAdapterSummary> listDigitalTwinAdapterSummaries(@NonNull String iotDomainOcid,
+			String displayName, com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
 		ListDigitalTwinAdaptersRequest.Builder requestBuilder = ListDigitalTwinAdaptersRequest.builder()
-				.iotDomainId(iotDomainOcid);
+				.iotDomainId(iotDomainOcid).sortBy(ListDigitalTwinAdaptersRequest.SortBy.DisplayName)
+				.sortOrder(ListDigitalTwinAdaptersRequest.SortOrder.Asc);
 		if (displayName != null) {
 			requestBuilder.displayName(displayName);
+		}
+		if (lifecycleState != null) {
+			requestBuilder.lifecycleState(lifecycleState);
 		}
 		Iterable<DigitalTwinAdapterSummary> digitalTwinAdapterSummaries = iotClient.getPaginators()
 				.listDigitalTwinAdaptersRecordIterator(requestBuilder.build());
@@ -765,7 +1068,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinAdapter in the specified IoTDomainSummary
+	 * get a list of all active DigitalTwinAdapter in the specified IoTDomainSummary
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -775,7 +1078,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinAdapter in the specified IoTDomain
+	 * get a list of all active DigitalTwinAdapter in the specified IoTDomain
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -786,7 +1089,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinAdapter in the specified IoTDomain
+	 * get a list of all active DigitalTwinAdapter in the specified IoTDomain
 	 * 
 	 * @param iotDomainOcid
 	 * @return
@@ -797,8 +1100,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinAdapter in the specified IoTDomainSummary, if
-	 * displayName is not null it's used to limit the results
+	 * get a list of all active DigitalTwinAdapter in the specified
+	 * IoTDomainSummary, if displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomainSummary
 	 * @param displayName
@@ -810,8 +1113,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomain, if displayName
-	 * is not null it's used to limit the results
+	 * get a list of all active DigitalTwinModel in the specified IoTDomain, if
+	 * displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomain
 	 * @param displayName
@@ -823,21 +1126,36 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinModel in the specified IoTDomain, if displayName
-	 * is not null it's used to limit the results
+	 * get a list of all active DigitalTwinModel in the specified IoTDomain, if
+	 * displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomainOcid
 	 * @param displayName
 	 * @return
 	 */
 	public List<DigitalTwinAdapter> listDigitalTwinAdapters(@NonNull String iotDomainOcid, String displayName) {
-		List<DigitalTwinAdapterSummary> modelSummaries = listDigitalTwinAdapterSummaries(iotDomainOcid, displayName);
+		return listDigitalTwinAdapters(iotDomainOcid, displayName, com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get a list of all DigitalTwinModel in the specified state and IoTDomain, if
+	 * displayName is not null it's used to limit the results. If lifecycleStates is
+	 * null then all states match
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @return
+	 */
+	public List<DigitalTwinAdapter> listDigitalTwinAdapters(@NonNull String iotDomainOcid, String displayName,
+			com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
+		List<DigitalTwinAdapterSummary> modelSummaries = listDigitalTwinAdapterSummaries(iotDomainOcid, displayName,
+				lifecycleState);
 		return modelSummaries.stream().map(ms -> getDigitalTwinAdapter(ms)).toList();
 	}
 
 	/**
-	 * get the DigitalTwinAdapter in the specified IotDomain with the displayName,
-	 * returns null of there are no matches
+	 * get the **FIRST** active DigitalTwinAdapter in the specified IotDomain with
+	 * the displayName, returns null if there are no matches
 	 * 
 	 * @param iotDomainSummary
 	 * @param displayName
@@ -849,8 +1167,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get the DigitalTwinAdapter in the specified IotDomain with the displayName,
-	 * returns null of there are no matches
+	 * get the **FIRST** active DigitalTwinAdapter in the specified IotDomain with
+	 * the displayName, returns null if there are no matches
 	 * 
 	 * @param iotDomain
 	 * @param displayName
@@ -862,16 +1180,30 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get the DigitalTwinAdapter in the specified IotDomain with the displayName,
-	 * returns null of there are no matches
+	 * get the **FIRST** active DigitalTwinAdapter in the specified IotDomain with
+	 * the displayName, returns null if there are no matches
 	 * 
 	 * @param iotDomainOcid
 	 * @param displayName
 	 * @return
 	 */
 	public DigitalTwinAdapter getDigitalTwinAdapter(@NonNull String iotDomainOcid, @NonNull String displayName) {
+		return getDigitalTwinAdapter(iotDomainOcid, displayName, com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get the **FIRST** active DigitalTwinAdapter in the specified state and
+	 * IotDomain with the displayName, returns null if there are no matches. if
+	 * lifecycleState is null then all states match
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @return
+	 */
+	public DigitalTwinAdapter getDigitalTwinAdapter(@NonNull String iotDomainOcid, @NonNull String displayName,
+			com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
 		List<DigitalTwinAdapterSummary> digitalTwinAdapterSummaries = listDigitalTwinAdapterSummaries(iotDomainOcid,
-				displayName);
+				displayName, lifecycleState);
 		if (digitalTwinAdapterSummaries.isEmpty()) {
 			return null;
 		}
@@ -879,7 +1211,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get the DigitalTwinAdapter from the specified summary
+	 * get the DigitalTwinAdapter from the specified summary.
 	 * 
 	 * @param digitalTwinAdapterSummary
 	 * @return
@@ -891,7 +1223,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinInstanceSummary in the specified IotDomain
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -902,7 +1234,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinInstanceSummary in the specified IotDomain
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -913,7 +1245,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinInstanceSummary in the specified IotDomain
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain
 	 * 
 	 * @param iotDomainOcid
 	 * @return
@@ -924,8 +1256,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinInstanceSummary in the specified IotDomain, if displayName
-	 * is non null limits to only results with that displayName
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -936,8 +1268,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinInstanceSummary in the specified IotDomain, if displayName
-	 * is non null limits to only results with that displayName
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -949,26 +1281,46 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get all DigitalTwinInstanceSummary in the specified IotDomain, if displayName
-	 * is non null limits to only results with that displayName
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomainOcid
 	 * @return
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
 			String displayName) {
+		return listDigitalTwinInstanceSummaries(iotDomainOcid, displayName,
+				com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * get all active DigitalTwinInstanceSummary in the specified state and
+	 * IotDomain, if displayName is non null limits to only results with that
+	 * displayName if the lifecycle state is null then all states match
+	 * 
+	 * @param iotDomainOcid
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
+			String displayName, com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
 		ListDigitalTwinInstancesRequest.Builder requestBuilder = ListDigitalTwinInstancesRequest.builder()
-				.iotDomainId(iotDomainOcid);
+				.iotDomainId(iotDomainOcid).sortBy(ListDigitalTwinInstancesRequest.SortBy.DisplayName)
+				.sortOrder(ListDigitalTwinInstancesRequest.SortOrder.Asc);
 		if (displayName != null) {
 			requestBuilder.displayName(displayName);
 		}
+		if (lifecycleState != null) {
+			requestBuilder.lifecycleState(lifecycleState);
+		}
+
 		Iterable<DigitalTwinInstanceSummary> digitalTwinInstanceSummaries = iotClient.getPaginators()
 				.listDigitalTwinInstancesRecordIterator(requestBuilder.build());
 		return StreamSupport.stream(digitalTwinInstanceSummaries.spliterator(), false).toList();
 	}
 
 	/**
-	 * get a list of all DigitalTwinInstance in the specified IoTDomainSummary
+	 * get a list of all active DigitalTwinInstance in the specified
+	 * IoTDomainSummary
 	 * 
 	 * @param iotDomainSummary
 	 * @return
@@ -978,7 +1330,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinInstance in the specified IoTDomain
+	 * get a list of all active DigitalTwinInstance in the specified IoTDomain
 	 * 
 	 * @param iotDomain
 	 * @return
@@ -989,7 +1341,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinInstance in the specified IoTDomain
+	 * get a list of all active DigitalTwinInstance in the specified IoTDomain
 	 * 
 	 * @param iotDomainOcid
 	 * @return
@@ -1000,8 +1352,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinInstance in the specified IoTDomainSummary, if
-	 * displayName is not null it's used to limit the results
+	 * get a list of all active DigitalTwinInstance in the specified
+	 * IoTDomainSummary, if displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomainSummary
 	 * @param displayName
@@ -1013,7 +1365,7 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinInstance in the specified IoTDomain, if
+	 * get a list of all active DigitalTwinInstance in the specified IoTDomain, if
 	 * displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomain
@@ -1026,8 +1378,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get a list of all DigitalTwinInstanceSummary in the specified IoTDomain, if
-	 * displayName is not null it's used to limit the results
+	 * get a list of all active DigitalTwinInstanceSummary in the specified
+	 * IoTDomain, if displayName is not null it's used to limit the results
 	 * 
 	 * @param iotDomainOcid
 	 * @param displayName
@@ -1039,8 +1391,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get the DigitalTwinInstance in the specified IotDomain with the displayName,
-	 * returns null of there are no matches
+	 * get the **FIRST** active DigitalTwinInstance in the specified IotDomain with
+	 * the displayName, returns null of there are no matches
 	 * 
 	 * @param iotDomainSummary
 	 * @param displayName
@@ -1052,8 +1404,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get the DigitalTwinInstance in the specified IotDomain with the displayName,
-	 * returns null of there are no matches
+	 * get the **FIRST** active DigitalTwinInstance in the specified IotDomain with
+	 * the displayName, returns null of there are no matches
 	 * 
 	 * @param iotDomain
 	 * @param displayName
@@ -1065,8 +1417,8 @@ public class IoTProcessor {
 	}
 
 	/**
-	 * get the DigitalTwinAdapter in the specified IotDomain with the displayName,
-	 * returns null of there are no matches
+	 * get the **FIRST** active DigitalTwinAdapter in the specified IotDomain with
+	 * the displayName, returns null of there are no matches
 	 * 
 	 * @param iotDomainOcid
 	 * @param displayName
