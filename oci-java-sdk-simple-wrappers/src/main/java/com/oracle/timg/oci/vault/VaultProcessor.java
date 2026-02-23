@@ -324,6 +324,60 @@ public class VaultProcessor {
 		return vaultSummaries.stream().map(vs -> getVaultFromVaultSummary(vs)).toList();
 	}
 
+	/**
+	 * gets the first matching vault with displayname in the compartment in active
+	 * state, returns null if not found
+	 * 
+	 * @param compartment
+	 * @param displayName
+	 * @return
+	 */
+	public Vault getVaultByName(@NonNull Compartment compartment, @NonNull String displayName) {
+		return getVaultByName(compartment, displayName, Vault.LifecycleState.Active);
+	}
+
+	/**
+	 * gets the first matching vault with displayname in the compartment in active
+	 * state, returns null if not found
+	 * 
+	 * @param parentCompartmentOcid
+	 * @param displayName
+	 * @return
+	 */
+	public Vault getVaultByName(@NonNull String parentCompartmentOcid, @NonNull String displayName) {
+		return getVaultByName(parentCompartmentOcid, displayName, Vault.LifecycleState.Active);
+	}
+
+	/**
+	 * gets the first matching vault with displayname in the compartment in the
+	 * specified state (null matches all states), returns null if not found
+	 * 
+	 * @param compartment
+	 * @param displayName
+	 * @return
+	 */
+	public Vault getVaultByName(@NonNull Compartment compartment, @NonNull String displayName,
+			Vault.LifecycleState lifecycleState) {
+		return getVaultByName(compartment.getId(), displayName, lifecycleState);
+	}
+
+	/**
+	 * gets the first matching vault with displayname in the compartment in the
+	 * specified state (null matches all states), returns null if not found
+	 * 
+	 * @param parentCompartmentOcid
+	 * @param displayName
+	 * @return
+	 */
+	public Vault getVaultByName(@NonNull String parentCompartmentOcid, @NonNull String displayName,
+			Vault.LifecycleState lifecycleState) {
+		List<Vault> vaults = listVaults(parentCompartmentOcid, displayName, lifecycleState);
+		if (vaults.isEmpty()) {
+			return null;
+		}
+		return vaults.getFirst();
+	}
+
 	public Vault getVaultFromVaultSummary(@NonNull VaultSummary vaultSummary) {
 		return getVaultFromVaultSummary(vaultSummary.getId());
 	}
@@ -444,12 +498,38 @@ public class VaultProcessor {
 		return getKey(vaultSummary.getId(), vaultSummary.getManagementEndpoint(), keyOcid);
 	}
 
+	public Key getKeyByName(@NonNull VaultSummary vaultSummary, @NonNull String keyName) {
+		KmsManagementClient kmsManagementClient = getKmsManagementClientForVault(vaultSummary);
+		return getKeyByName(kmsManagementClient, vaultSummary.getCompartmentId(), keyName);
+	}
+
 	public Key getKey(@NonNull Vault vault, @NonNull KeySummary keySummary) {
 		return getKey(vault.getId(), vault.getManagementEndpoint(), keySummary.getId());
 	}
 
 	public Key getKey(@NonNull Vault vault, @NonNull String keyOcid) {
 		return getKey(vault.getId(), vault.getManagementEndpoint(), keyOcid);
+	}
+
+	public Key getKeyByName(@NonNull Vault vault, @NonNull String keyName) {
+		KmsManagementClient kmsManagementClient = getKmsManagementClientForVault(vault);
+		return getKeyByName(kmsManagementClient, vault.getCompartmentId(), keyName);
+	}
+
+	public Key getKeyByName(@NonNull KmsManagementClient kmsManagementClient, @NonNull String parentCompartmentOcid,
+			@NonNull String keyName) {
+		return getKeyByName(kmsManagementClient, parentCompartmentOcid, keyName, KeySummary.LifecycleState.Enabled);
+	}
+
+	public Key getKeyByName(@NonNull KmsManagementClient kmsManagementClient, @NonNull String parentCompartmentOcid,
+			@NonNull String keyName, KeySummary.LifecycleState lifecycleState) {
+		List<KeySummary> summaries = listKeySummaries(kmsManagementClient, parentCompartmentOcid, keyName,
+				lifecycleState);
+		if (summaries.isEmpty()) {
+			return null;
+		}
+		KeySummary first = summaries.getFirst();
+		return getKey(first.getVaultId(), kmsManagementClient.getEndpoint(), first.getId());
 	}
 
 	public Key getKey(@NonNull String vaultOcid, @NonNull String vaultEndpoint, @NonNull String keyOcid) {
@@ -898,8 +978,8 @@ public class VaultProcessor {
 	 * @param name
 	 * @return
 	 */
-	public Secret getSecret(@NonNull VaultSummary vaultSummary, @NonNull String name) {
-		return getSecret(vaultSummary.getCompartmentId(), vaultSummary.getId(), name);
+	public Secret getSecretByName(@NonNull VaultSummary vaultSummary, @NonNull String name) {
+		return getSecretByName(vaultSummary.getCompartmentId(), vaultSummary.getId(), name);
 	}
 
 	/**
@@ -910,8 +990,8 @@ public class VaultProcessor {
 	 * @param name
 	 * @return
 	 */
-	public Secret getSecret(@NonNull Vault vault, @NonNull String name) {
-		return getSecret(vault.getCompartmentId(), vault.getId(), name);
+	public Secret getSecretByName(@NonNull Vault vault, @NonNull String name) {
+		return getSecretByName(vault.getCompartmentId(), vault.getId(), name);
 	}
 
 	/**
@@ -923,7 +1003,7 @@ public class VaultProcessor {
 	 * @param name
 	 * @return
 	 */
-	public Secret getSecret(@NonNull String compartmentOcid, String vaultOcid, @NonNull String name) {
+	public Secret getSecretByName(@NonNull String compartmentOcid, String vaultOcid, @NonNull String name) {
 		List<SecretSummary> secretSummaries = listSecretSummaries(compartmentOcid, vaultOcid, name,
 				SecretSummary.LifecycleState.Active);
 		if (secretSummaries.isEmpty()) {
@@ -1529,6 +1609,26 @@ public class VaultProcessor {
 				.secretVersionNumber(secretVersionNumber).build();
 		GetSecretVersionResponse response = vaultClient.getSecretVersion(request);
 		return response.getSecretVersion();
+	}
+
+	/**
+	 * gets the contents of the CURRENT version of the secret
+	 * 
+	 * @param secret
+	 * @return
+	 */
+	public String getSecretContents(@NonNull Secret secret) {
+		return getSecretContentsReal(secret.getId(), null, null, null);
+	}
+
+	/**
+	 * gets the contents of the CURRENT version of the secret
+	 * 
+	 * @param secretSummary
+	 * @return
+	 */
+	public String getSecretContents(@NonNull SecretSummary secretSummary) {
+		return getSecretContentsReal(secretSummary.getId(), null, null, null);
 	}
 
 	/**

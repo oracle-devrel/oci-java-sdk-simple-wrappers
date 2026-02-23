@@ -8,7 +8,7 @@
 	<name>OciTesting</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<version.ocicore>1.2.0</version.ocicore>
+		<version.ocicore>1.2.1</version.ocicore>
 		<version.timgutils>1.0.13</version.timgutils>
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>

@@ -41,7 +41,7 @@ SOFTWARE. -->
 	<groupId>com.oracle.timg.demo</groupId>
 	<artifactId>oci-java-sdk-simple-wrappers</artifactId>
 	<name>ocicore</name>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<properties>
 		<packaging>jar</packaging>
 		<jdk.version>21</jdk.version>

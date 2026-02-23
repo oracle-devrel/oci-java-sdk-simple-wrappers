@@ -1230,7 +1230,19 @@ public class IoTProcessor {
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(
 			@NonNull IotDomainSummary iotDomainSummary) {
-		return listDigitalTwinInstanceSummaries(iotDomainSummary.getId());
+		return listDigitalTwinInstanceSummariesReal(iotDomainSummary.getId(), null, null, null);
+	}
+
+	/**
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain
+	 * 
+	 * @param iotDomainSummary
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomainSummary iotDomainSummary,
+			DigitalTwinModel digitalTwinModel) {
+		return listDigitalTwinInstanceSummariesReal(iotDomainSummary.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), null, null);
 	}
 
 	/**
@@ -1240,7 +1252,33 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomain iotDomain) {
-		return listDigitalTwinInstanceSummaries(iotDomain.getId());
+		return listDigitalTwinInstanceSummariesReal(iotDomain.getId(), null, null, null);
+
+	}
+
+	/**
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain
+	 * 
+	 * @param iotDomain
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomain iotDomain,
+			DigitalTwinModel digitalTwinModel) {
+		return listDigitalTwinInstanceSummariesReal(iotDomain.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), null, null);
+
+	}
+
+	/**
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain
+	 * 
+	 * @param iotDomainOcid
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
+			DigitalTwinModel digitalTwinModel) {
+		return listDigitalTwinInstanceSummariesReal(iotDomainOcid,
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), null, null);
 
 	}
 
@@ -1251,7 +1289,7 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid) {
-		return listDigitalTwinInstanceSummaries(iotDomainOcid, null);
+		return listDigitalTwinInstanceSummariesReal(iotDomainOcid, null, null, null);
 
 	}
 
@@ -1263,8 +1301,35 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomainSummary iotDomainSummary,
+			DigitalTwinModel digitalTwinModel, String displayName) {
+		return listDigitalTwinInstanceSummariesReal(iotDomainSummary.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), displayName, null);
+	}
+
+	/**
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
+	 * 
+	 * @param iotDomainSummary
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomainSummary iotDomainSummary,
 			String displayName) {
-		return listDigitalTwinInstanceSummaries(iotDomainSummary.getId(), displayName);
+		return listDigitalTwinInstanceSummariesReal(iotDomainSummary.getId(), null, displayName, null);
+	}
+
+	/**
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
+	 * 
+	 * @param iotDomain
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomain iotDomain,
+			DigitalTwinModel digitalTwinModel, String displayName) {
+		return listDigitalTwinInstanceSummariesReal(iotDomain.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), displayName, null);
+
 	}
 
 	/**
@@ -1276,7 +1341,7 @@ public class IoTProcessor {
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull IotDomain iotDomain,
 			String displayName) {
-		return listDigitalTwinInstanceSummaries(iotDomain.getId(), displayName);
+		return listDigitalTwinInstanceSummariesReal(iotDomain.getId(), null, displayName, null);
 
 	}
 
@@ -1289,23 +1354,78 @@ public class IoTProcessor {
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
 			String displayName) {
-		return listDigitalTwinInstanceSummaries(iotDomainOcid, displayName,
-				com.oracle.bmc.iot.model.LifecycleState.Active);
+		return listDigitalTwinInstanceSummariesReal(iotDomainOcid, null, displayName, null);
 	}
 
 	/**
-	 * get all active DigitalTwinInstanceSummary in the specified state and
-	 * IotDomain, if displayName is non null limits to only results with that
-	 * displayName if the lifecycle state is null then all states match
+	 * get all active DigitalTwinInstanceSummary in the specified IotDomain, if
+	 * displayName is non null limits to only results with that displayName
 	 * 
 	 * @param iotDomainOcid
 	 * @return
 	 */
 	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
+			String digitalTwinModelOcid, String displayName) {
+		return listDigitalTwinInstanceSummariesReal(iotDomainOcid, displayName, null,
+				com.oracle.bmc.iot.model.LifecycleState.Active);
+	}
+
+	/**
+	 * 
+	 * get all active DigitalTwinInstanceSummary in the specified state and
+	 * IotDomain, if displayName is non null limits to only results with that
+	 * displayName if the lifecycle state is null then all states match
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @param lifecycleState
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
 			String displayName, com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
+		return listDigitalTwinInstanceSummariesReal(iotDomainOcid, null, displayName, lifecycleState);
+	}
+
+	/**
+	 * 
+	 * get all active DigitalTwinInstanceSummary in the specified state and
+	 * IotDomain, if displayName is non null limits to only results with that
+	 * displayName if the lifecycle state is null then all states match, if
+	 * digitalTwinModelOcid is null then matches all models
+	 * 
+	 * @param iotDomainOcid
+	 * @param digitalTwinModelOcid
+	 * @param displayName
+	 * @param lifecycleState
+	 * @return
+	 */
+	public List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummaries(@NonNull String iotDomainOcid,
+			String digitalTwinModelOcid, String displayName, com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
+		return listDigitalTwinInstanceSummariesReal(iotDomainOcid, digitalTwinModelOcid, displayName, lifecycleState);
+	}
+
+	/**
+	 * 
+	 * get all active DigitalTwinInstanceSummary in the specified state and
+	 * IotDomain, if displayName is non null limits to only results with that
+	 * displayName if the lifecycle state is null then all states match, if
+	 * digitalTwinModelOcid is null then matches all models
+	 * 
+	 * @param iotDomainOcid
+	 * @param digitalTwinModelOcid
+	 * @param displayName
+	 * @param lifecycleState
+	 * @return
+	 */
+	private List<DigitalTwinInstanceSummary> listDigitalTwinInstanceSummariesReal(@NonNull String iotDomainOcid,
+			String digitalTwinModelOcid, String displayName, com.oracle.bmc.iot.model.LifecycleState lifecycleState) {
 		ListDigitalTwinInstancesRequest.Builder requestBuilder = ListDigitalTwinInstancesRequest.builder()
 				.iotDomainId(iotDomainOcid).sortBy(ListDigitalTwinInstancesRequest.SortBy.DisplayName)
 				.sortOrder(ListDigitalTwinInstancesRequest.SortOrder.Asc);
+		if (digitalTwinModelOcid != null) {
+			requestBuilder.digitalTwinModelId(digitalTwinModelOcid);
+		}
+
 		if (displayName != null) {
 			requestBuilder.displayName(displayName);
 		}
@@ -1330,6 +1450,19 @@ public class IoTProcessor {
 	}
 
 	/**
+	 * get a list of all active DigitalTwinInstance in the specified
+	 * IoTDomainSummary
+	 * 
+	 * @param iotDomainSummary
+	 * @return
+	 */
+	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull IotDomainSummary iotDomainSummary,
+			DigitalTwinModel digitalTwinModel) {
+		return listDigitalTwinInstancesReal(iotDomainSummary.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), null);
+	}
+
+	/**
 	 * get a list of all active DigitalTwinInstance in the specified IoTDomain
 	 * 
 	 * @param iotDomain
@@ -1343,11 +1476,24 @@ public class IoTProcessor {
 	/**
 	 * get a list of all active DigitalTwinInstance in the specified IoTDomain
 	 * 
+	 * @param iotDomain
+	 * @return
+	 */
+	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull IotDomain iotDomain,
+			DigitalTwinModel digitalTwinModel) {
+		return listDigitalTwinInstancesReal(iotDomain.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), null);
+
+	}
+
+	/**
+	 * get a list of all active DigitalTwinInstance in the specified IoTDomain
+	 * 
 	 * @param iotDomainOcid
 	 * @return
 	 */
 	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull String iotDomainOcid) {
-		return listDigitalTwinInstances(iotDomainOcid, null);
+		return listDigitalTwinInstancesReal(iotDomainOcid, null, null);
 
 	}
 
@@ -1361,7 +1507,21 @@ public class IoTProcessor {
 	 */
 	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull IotDomainSummary iotDomainSummary,
 			String displayName) {
-		return listDigitalTwinInstances(iotDomainSummary.getId(), displayName);
+		return listDigitalTwinInstancesReal(iotDomainSummary.getId(), null, displayName);
+	}
+
+	/**
+	 * get a list of all active DigitalTwinInstance in the specified
+	 * IoTDomainSummary, if displayName is not null it's used to limit the results
+	 * 
+	 * @param iotDomainSummary
+	 * @param displayName
+	 * @return
+	 */
+	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull IotDomainSummary iotDomainSummary,
+			DigitalTwinModel digitalTwinModel, String displayName) {
+		return listDigitalTwinInstancesReal(iotDomainSummary.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), displayName);
 	}
 
 	/**
@@ -1373,7 +1533,22 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull IotDomain iotDomain, String displayName) {
-		return listDigitalTwinInstances(iotDomain.getId(), displayName);
+		return listDigitalTwinInstancesReal(iotDomain.getId(), null, displayName);
+
+	}
+
+	/**
+	 * get a list of all active DigitalTwinInstance in the specified IoTDomain, if
+	 * displayName is not null it's used to limit the results
+	 * 
+	 * @param iotDomain
+	 * @param displayName
+	 * @return
+	 */
+	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull IotDomain iotDomain,
+			DigitalTwinModel digitalTwinModel, String displayName) {
+		return listDigitalTwinInstancesReal(iotDomain.getId(),
+				digitalTwinModel == null ? null : digitalTwinModel.getId(), displayName);
 
 	}
 
@@ -1386,7 +1561,34 @@ public class IoTProcessor {
 	 * @return
 	 */
 	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull String iotDomainOcid, String displayName) {
-		List<DigitalTwinInstanceSummary> modelSummaries = listDigitalTwinInstanceSummaries(iotDomainOcid, displayName);
+		return listDigitalTwinInstancesReal(iotDomainOcid, null, displayName);
+	}
+
+	/**
+	 * get a list of all active DigitalTwinInstanceSummary in the specified
+	 * IoTDomain, if displayName is not null it's used to limit the results
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @return
+	 */
+	public List<DigitalTwinInstance> listDigitalTwinInstances(@NonNull String iotDomainOcid,
+			String digitalTwinModelOcid, String displayName) {
+		return listDigitalTwinInstancesReal(iotDomainOcid, digitalTwinModelOcid, displayName);
+	}
+
+	/**
+	 * get a list of all active DigitalTwinInstanceSummary in the specified
+	 * IoTDomain, if displayName is not null it's used to limit the results
+	 * 
+	 * @param iotDomainOcid
+	 * @param displayName
+	 * @return
+	 */
+	private List<DigitalTwinInstance> listDigitalTwinInstancesReal(@NonNull String iotDomainOcid,
+			String digitalTwinModelOcid, String displayName) {
+		List<DigitalTwinInstanceSummary> modelSummaries = listDigitalTwinInstanceSummariesReal(iotDomainOcid,
+				digitalTwinModelOcid, displayName, null);
 		return modelSummaries.stream().map(ms -> getDigitalTwinInstance(ms)).toList();
 	}
 
