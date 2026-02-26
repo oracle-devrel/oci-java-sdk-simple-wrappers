@@ -1,4 +1,5 @@
 <factorypath>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/timg/demo/oci-java-sdk-simple-wrappers/1.2.2/oci-java-sdk-simple-wrappers-1.2.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-core/3.80.1/oci-java-sdk-core-3.80.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common/3.80.1/oci-java-sdk-common-3.80.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/core/jackson-annotations/2.19.2/jackson-annotations-2.19.2.jar" enabled="true" runInBatchMode="false"/>

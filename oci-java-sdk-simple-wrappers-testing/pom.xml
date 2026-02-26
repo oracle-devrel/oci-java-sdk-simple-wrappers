@@ -8,7 +8,7 @@
 	<name>OciTesting</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<version.ocicore>1.2.1</version.ocicore>
+		<version.ociwrappers>1.2.2</version.ociwrappers>
 		<version.timgutils>1.0.13</version.timgutils>
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>com.oracle.timg.demo</groupId>
 			<artifactId>oci-java-sdk-simple-wrappers</artifactId>
-			<version>${version.ocicore}</version>
+			<version>${version.ociwrappers}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>

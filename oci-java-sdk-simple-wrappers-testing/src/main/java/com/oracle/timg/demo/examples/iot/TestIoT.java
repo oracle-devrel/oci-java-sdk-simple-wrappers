@@ -140,7 +140,7 @@ public class TestIoT {
 					digitalTwinInstances.stream()
 							.map(dti -> new ChoiceDescription<DigitalTwinInstance>(dti.getDisplayName(), dti))
 							.toList());
-			digitalTwinInstance = TextIOUtils.getParamChoice("Please chose the IoT domain group",
+			digitalTwinInstance = TextIOUtils.getParamChoice("Please chose the IoT instance form all instances",
 					digitalTwinInstancesCdd);
 			TextIOUtils.doOutput("You chose Digital Twin Instance " + digitalTwinInstance.getDisplayName());
 		}
@@ -148,6 +148,26 @@ public class TestIoT {
 		if (digitalTwinInstance != null) {
 			getAndPrintLatestInstanceData(digitalTwinInstance);
 		}
+
+		List<DigitalTwinInstance> digitalTwinInstancesActive = iotProcessor.listDigitalTwinInstancesActive(iotDomain);
+		DigitalTwinInstance digitalTwinInstanceActive = null;
+		if (digitalTwinInstancesActive.isEmpty()) {
+			TextIOUtils.doOutput("No active Digital Twin Instances found in IotDomain  " + iotDomain.getDisplayName());
+		} else {
+			ChoiceDescriptionData<DigitalTwinInstance> digitalTwinInstancesActiveCdd = new ChoiceDescriptionData<>(
+					digitalTwinInstancesActive.stream()
+							.map(dti -> new ChoiceDescription<DigitalTwinInstance>(dti.getDisplayName(), dti))
+							.toList());
+			digitalTwinInstanceActive = TextIOUtils.getParamChoice(
+					"Please chose the active IoT instance form all instances", digitalTwinInstancesActiveCdd);
+			TextIOUtils
+					.doOutput("You chose active Digital Twin Instance " + digitalTwinInstanceActive.getDisplayName());
+		}
+
+		if (digitalTwinInstanceActive != null) {
+			getAndPrintLatestInstanceData(digitalTwinInstanceActive);
+		}
+
 		DigitalTwinInstance newDigitalTwinInstance = null;
 		if ((digitalTwinInstance != null) && (digitalTwinAdapter != null) && (digitalTwinModel != null)) {
 			if (TextIOUtils.getYN(
