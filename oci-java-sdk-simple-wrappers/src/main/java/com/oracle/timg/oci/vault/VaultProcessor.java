@@ -37,6 +37,7 @@ SOFTWARE.
 package com.oracle.timg.oci.vault;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -1184,7 +1185,7 @@ public class VaultProcessor {
 		while ((remainingSeconds > 0) && (!secretToTest.getLifecycleState().equals(Secret.LifecycleState.Active))) {
 			remainingSeconds -= secondsBetweenChecks;
 			try {
-				Thread.sleep(secondsBetweenChecks);
+				Thread.sleep(Duration.ofSeconds(secondsBetweenChecks));
 			} catch (InterruptedException e) {
 				return null;
 			}
