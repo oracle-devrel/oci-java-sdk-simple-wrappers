@@ -54,24 +54,24 @@ import com.oracle.bmc.iot.model.IotDomain;
 import com.oracle.bmc.iot.model.IotDomainGroup;
 import com.oracle.timg.oci.authentication.AuthenticationProcessor;
 import com.oracle.timg.oci.identity.IdentityProcessor;
-import com.oracle.timg.oci.iot.IoTProcessor;
+import com.oracle.timg.oci.iot.IotProcessor;
 import com.oracle.timg.oci.vault.VaultProcessor;
 
 import timgutilities.textio.ChoiceDescription;
 import timgutilities.textio.ChoiceDescriptionData;
 import timgutilities.textio.TextIOUtils;
 
-public class TestIoT {
+public class TestIot {
 	static AuthenticationProcessor authenticationProcessor;
 	static IdentityProcessor identityProcessor;
-	static IoTProcessor iotProcessor;
+	static IotProcessor iotProcessor;
 	static VaultProcessor vaultProcessor;
 
 	public static void main(String[] args) throws Exception {
 		TextIOUtils.doOutput("Configuring OCI connection");
 		authenticationProcessor = new AuthenticationProcessor("DEFAULT");
 		identityProcessor = new IdentityProcessor(authenticationProcessor);
-		iotProcessor = new IoTProcessor(authenticationProcessor);
+		iotProcessor = new IotProcessor(authenticationProcessor);
 		vaultProcessor = new VaultProcessor(authenticationProcessor);
 
 		String compartmentPath = TextIOUtils.getString("Please enter the compartment path to operate in",
@@ -83,7 +83,7 @@ public class TestIoT {
 		}
 		TextIOUtils.doOutput("OCID of " + compartmentPath + " is " + compartment.getId());
 
-		List<IotDomainGroup> iotDomainGroups = iotProcessor.listIoTDomainGroupsInCompartment(compartment);
+		List<IotDomainGroup> iotDomainGroups = iotProcessor.listIotDomainGroupsInCompartment(compartment);
 		if (iotDomainGroups.isEmpty()) {
 			TextIOUtils.doOutput("No Iot Domain Groups found in compartment " + compartmentPath + ", cannot continue");
 			return;

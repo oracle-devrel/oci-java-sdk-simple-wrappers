@@ -90,7 +90,7 @@ import lombok.extern.slf4j.Slf4j;
  * easier
  */
 @Slf4j
-public class IoTProcessor {
+public class IotProcessor {
 	private final AuthenticationProcessor authProcessor;
 	@Getter
 	private final IotClient iotClient;
@@ -101,7 +101,7 @@ public class IoTProcessor {
 	 * 
 	 * @param authProcessor
 	 */
-	public IoTProcessor(AuthenticationProcessor authProcessor) {
+	public IotProcessor(AuthenticationProcessor authProcessor) {
 		this.authProcessor = authProcessor;
 		iotClient = IotClient.builder().region(authProcessor.getRegionName()).build(authProcessor.getProvider());
 	}
@@ -122,8 +122,8 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInTenancy() {
-		return listIoTDomainGroupSummariesInCompartment(authProcessor.getTenancyOCID());
+	public List<IotDomainGroupSummary> listIotDomainGroupSummariesInTenancy() {
+		return listIotDomainGroupSummariesInCompartment(authProcessor.getTenancyOCID());
 	}
 
 	/**
@@ -133,9 +133,9 @@ public class IoTProcessor {
 	 * @param parentCompartment
 	 * @return
 	 */
-	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(
+	public List<IotDomainGroupSummary> listIotDomainGroupSummariesInCompartment(
 			@NonNull Compartment parentCompartment) {
-		return listIoTDomainGroupSummariesInCompartment(authProcessor.getTenancyOCID());
+		return listIotDomainGroupSummariesInCompartment(authProcessor.getTenancyOCID());
 	}
 
 	/**
@@ -145,8 +145,8 @@ public class IoTProcessor {
 	 * @param parentCompartmentOcid
 	 * @return
 	 */
-	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid) {
-		return listIoTDomainGroupSummariesInCompartment(parentCompartmentOcid, null);
+	public List<IotDomainGroupSummary> listIotDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid) {
+		return listIotDomainGroupSummariesInCompartment(parentCompartmentOcid, null);
 	}
 
 	/**
@@ -158,9 +158,9 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(@NonNull Compartment parentCompartment,
+	public List<IotDomainGroupSummary> listIotDomainGroupSummariesInCompartment(@NonNull Compartment parentCompartment,
 			String displayName) {
-		return listIoTDomainGroupSummariesInCompartment(parentCompartment.getId(), displayName);
+		return listIotDomainGroupSummariesInCompartment(parentCompartment.getId(), displayName);
 	}
 
 	/**
@@ -172,9 +172,9 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid,
+	public List<IotDomainGroupSummary> listIotDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid,
 			String displayName) {
-		return listIoTDomainGroupSummariesInCompartment(parentCompartmentOcid, displayName,
+		return listIotDomainGroupSummariesInCompartment(parentCompartmentOcid, displayName,
 				IotDomainGroup.LifecycleState.Active);
 	}
 
@@ -188,7 +188,7 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroupSummary> listIoTDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid,
+	public List<IotDomainGroupSummary> listIotDomainGroupSummariesInCompartment(@NonNull String parentCompartmentOcid,
 			String displayName, IotDomainGroup.LifecycleState lifecycleState) {
 		ListIotDomainGroupsRequest.Builder requestBuilder = ListIotDomainGroupsRequest.builder()
 				.compartmentId(parentCompartmentOcid).sortBy(ListIotDomainGroupsRequest.SortBy.DisplayName)
@@ -209,8 +209,8 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroup> listIoTDomainGroupsInTenancy() {
-		return listIoTDomainGroupsInCompartment(authProcessor.getTenancyOCID());
+	public List<IotDomainGroup> listIotDomainGroupsInTenancy() {
+		return listIotDomainGroupsInCompartment(authProcessor.getTenancyOCID());
 	}
 
 	/**
@@ -220,8 +220,8 @@ public class IoTProcessor {
 	 * @param parentCompartmentOcid
 	 * @return
 	 */
-	public List<IotDomainGroup> listIoTDomainGroupsInCompartment(@NonNull String parentCompartmentOcid) {
-		return listIoTDomainGroupsInCompartment(parentCompartmentOcid, null);
+	public List<IotDomainGroup> listIotDomainGroupsInCompartment(@NonNull String parentCompartmentOcid) {
+		return listIotDomainGroupsInCompartment(parentCompartmentOcid, null);
 	}
 
 	/**
@@ -231,8 +231,8 @@ public class IoTProcessor {
 	 * @param parentCompartmentOcid
 	 * @return
 	 */
-	public List<IotDomainGroup> listIoTDomainGroupsInCompartment(@NonNull Compartment parentCompartment) {
-		return listIoTDomainGroupsInCompartment(parentCompartment.getId(), null);
+	public List<IotDomainGroup> listIotDomainGroupsInCompartment(@NonNull Compartment parentCompartment) {
+		return listIotDomainGroupsInCompartment(parentCompartment.getId(), null);
 	}
 
 	/**
@@ -245,9 +245,9 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroup> listIoTDomainGroupsInCompartment(@NonNull String parentCompartmentOcid,
+	public List<IotDomainGroup> listIotDomainGroupsInCompartment(@NonNull String parentCompartmentOcid,
 			String displayName) {
-		return listIoTDomainGroupsInCompartment(parentCompartmentOcid, displayName,
+		return listIotDomainGroupsInCompartment(parentCompartmentOcid, displayName,
 				IotDomainGroup.LifecycleState.Active);
 	}
 
@@ -261,9 +261,9 @@ public class IoTProcessor {
 	 * 
 	 * @return
 	 */
-	public List<IotDomainGroup> listIoTDomainGroupsInCompartment(@NonNull String parentCompartmentOcid,
+	public List<IotDomainGroup> listIotDomainGroupsInCompartment(@NonNull String parentCompartmentOcid,
 			String displayName, IotDomainGroup.LifecycleState lifecycleState) {
-		List<IotDomainGroupSummary> domainGroupSummaries = listIoTDomainGroupSummariesInCompartment(
+		List<IotDomainGroupSummary> domainGroupSummaries = listIotDomainGroupSummariesInCompartment(
 				parentCompartmentOcid, displayName, lifecycleState);
 		return domainGroupSummaries.stream().map(dsg -> getIotDomainGroup(dsg)).toList();
 	}
@@ -295,7 +295,7 @@ public class IoTProcessor {
 	 */
 	public IotDomainGroupSummary getIotDomainGroupSummary(@NonNull String parentCompartmentOcid,
 			@NonNull String displayName, IotDomainGroup.LifecycleState lifecycleState) {
-		List<IotDomainGroupSummary> iotDomainGroupSummaries = listIoTDomainGroupSummariesInCompartment(
+		List<IotDomainGroupSummary> iotDomainGroupSummaries = listIotDomainGroupSummariesInCompartment(
 				parentCompartmentOcid, displayName, lifecycleState);
 		if (iotDomainGroupSummaries.isEmpty()) {
 			return null;
@@ -330,7 +330,7 @@ public class IoTProcessor {
 	 */
 	public IotDomainGroup getIotDomainGroup(@NonNull String parentCompartmentOcid, @NonNull String displayName,
 			IotDomainGroup.LifecycleState lifecycleState) {
-		List<IotDomainGroupSummary> iotDomainGroupSummaries = listIoTDomainGroupSummariesInCompartment(
+		List<IotDomainGroupSummary> iotDomainGroupSummaries = listIotDomainGroupSummariesInCompartment(
 				parentCompartmentOcid, displayName, lifecycleState);
 		if (iotDomainGroupSummaries.isEmpty()) {
 			return null;
