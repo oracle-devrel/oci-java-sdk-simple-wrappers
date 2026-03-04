@@ -52,7 +52,7 @@ import lombok.Setter;
 
 public class AuthenticationProcessor {
 
-	private final ConfigFileAuthenticationDetailsProvider provider;
+	private final AuthenticationDetailsProvider provider;
 	@Getter
 	@Setter
 	private String regionName;
@@ -84,12 +84,14 @@ public class AuthenticationProcessor {
 	public AuthenticationProcessor(@NonNull String providerName, String regionName)
 			throws IllegalArgumentException, IOException {
 		// get and save the provider away
-		provider = new ConfigFileAuthenticationDetailsProvider(providerName);
+		ConfigFileAuthenticationDetailsProvider configFileProvider = new ConfigFileAuthenticationDetailsProvider(
+				providerName);
 		if (regionName != null) {
 			this.regionName = regionName;
 		} else {
-			this.regionName = provider.getRegion().getRegionId();
+			this.regionName = configFileProvider.getRegion().getRegionId();
 		}
+		this.provider = configFileProvider;
 	}
 
 	/**

@@ -1,15 +1,15 @@
 <factorypath>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-core/3.77.0/oci-java-sdk-core-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common/3.77.0/oci-java-sdk-common-3.77.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-core/3.80.1/oci-java-sdk-core-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common/3.80.1/oci-java-sdk-common-3.80.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/core/jackson-annotations/2.19.2/jackson-annotations-2.19.2.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-circuitbreaker/3.77.0/oci-java-sdk-circuitbreaker-3.77.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-circuitbreaker/3.80.1/oci-java-sdk-circuitbreaker-3.80.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/github/resilience4j/resilience4j-circuitbreaker/1.7.1/resilience4j-circuitbreaker-1.7.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/vavr/vavr/0.10.2/vavr-0.10.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/vavr/vavr-match/0.10.2/vavr-match-0.10.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/github/resilience4j/resilience4j-core/1.7.1/resilience4j-core-1.7.1.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-workrequests/3.77.0/oci-java-sdk-workrequests-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common-httpclient-jersey3/3.77.0/oci-java-sdk-common-httpclient-jersey3-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common-httpclient/3.77.0/oci-java-sdk-common-httpclient-3.77.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-workrequests/3.80.1/oci-java-sdk-workrequests-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common-httpclient-jersey3/3.80.1/oci-java-sdk-common-httpclient-jersey3-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-common-httpclient/3.80.1/oci-java-sdk-common-httpclient-3.80.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/jakarta/ws/rs/jakarta.ws.rs-api/3.0.0/jakarta.ws.rs-api-3.0.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.19.2/jackson-core-2.19.2.jar" enabled="true" runInBatchMode="false"/>
@@ -36,13 +36,15 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/httpcomponents/httpcore/4.4.13/httpcore-4.4.13.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.19.2/jackson-datatype-jsr310-2.19.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/slf4j/slf4j-api/1.7.33/slf4j-api-1.7.33.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-streaming/3.77.0/oci-java-sdk-streaming-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-objectstorage/3.77.0/oci-java-sdk-objectstorage-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-objectstorage-generated/3.77.0/oci-java-sdk-objectstorage-generated-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-objectstorage-extensions/3.77.0/oci-java-sdk-objectstorage-extensions-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-identity/3.77.0/oci-java-sdk-identity-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-vault/3.77.0/oci-java-sdk-vault-3.77.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-iot/3.77.0/oci-java-sdk-iot-3.77.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-streaming/3.80.1/oci-java-sdk-streaming-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-objectstorage/3.80.1/oci-java-sdk-objectstorage-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-objectstorage-generated/3.80.1/oci-java-sdk-objectstorage-generated-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-objectstorage-extensions/3.80.1/oci-java-sdk-objectstorage-extensions-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-identity/3.80.1/oci-java-sdk-identity-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-keymanagement/3.80.1/oci-java-sdk-keymanagement-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-vault/3.80.1/oci-java-sdk-vault-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-secrets/3.80.1/oci-java-sdk-secrets-3.80.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/oci/sdk/oci-java-sdk-iot/3.80.1/oci-java-sdk-iot-3.80.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/slf4j/slf4j-jdk14/2.0.7/slf4j-jdk14-2.0.7.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="PLUGIN" id="org.eclipse.jst.ws.annotations.core" enabled="false" runInBatchMode="false"/>
