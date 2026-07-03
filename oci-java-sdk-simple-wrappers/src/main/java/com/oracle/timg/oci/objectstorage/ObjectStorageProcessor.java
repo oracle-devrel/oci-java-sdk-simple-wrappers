@@ -104,7 +104,7 @@ public class ObjectStorageProcessor {
 	private String pathSeparatorInObjectStorage = DEFAULT_PATH_SEPARATOR_IN_OBJECT_STORAGE;
 
 	/**
-	 * creates an instance whihc will use the provided AuthenticationProcessor for
+	 * creates an instance which will use the provided AuthenticationProcessor for
 	 * authentication
 	 * 
 	 * @param authProcessor
